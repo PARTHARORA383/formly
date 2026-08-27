@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    /* Language and environment */
+    "target": "ES2023",
+    "lib": ["ES2023"],
+
+    /* Modules — NodeNext respects "type" in package.json.
+       Package is ESM ("type": "module"), so relative imports need explicit .js extensions.
+       These resolve to the compiled output in dist/. */
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+
+    /* Type checking */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+
+    /* Emit */
+    "sourceMap": true,
+    "declaration": false,
+    "removeComments": true,
+    "noEmitOnError": true,
+
+    /* Interop */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
