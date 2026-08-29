@@ -7,6 +7,7 @@ const env = {
     database: process.env.DATABASE_URL,
     resendApiKey: process.env.RESEND_API_KEY,
     emailFrom: process.env.EMAIL_FROM,
+    frontendUrl : process.env.FRONTEND_URL,
 }
 
 export { env }

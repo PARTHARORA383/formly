@@ -1,37 +1,45 @@
+import { eq } from 'drizzle-orm'
 import { db } from '../db/index.js'
-import { usersTable } from '../db/schema.js'
-import { type MagicLink, type SignupInput } from './auth.types.js'
+import { magicLinksTable, usersTable } from '../db/schema.js'
+import { type MagicLink } from './auth.types.js'
+import ApiError from '../common/utils/error.js'
+import { generateToken } from '../common/utils/token.js'
+import EmailService from '../common/services/email.service.js'
+import { email } from 'zod'
 
-async function signup(input: SignupInput) {
 
-//check if the user exist in db , if yes return error user already exist sign try login , if no create a user  , before creating a user hash the password , and before that as well 
+async function magicLink(input: MagicLink) {
 
+    const isExistingUser = await db.select().from(usersTable).where(eq(usersTable.email, input.email))
 
-  const [user] = await db
-    .insert(usersTable)
-    .values(input)
-    .returning({
-      id: usersTable.id,
-      name: usersTable.name,
-      email: usersTable.email,
-      avatarUrl: usersTable.avatarUrl,
-      createdAt: usersTable.createdAt,
+    let user = isExistingUser[0];
+
+    //signup a user
+    if (!user) {
+        const [newUser] = await db.insert(usersTable).values({ email: input.email }).returning()
+
+        if (!newUser) {
+            throw ApiError.badRequest()
+        }
+        user = newUser
+    }
+
+    const { raw, hash } = generateToken()
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 min
+
+    await db.insert(magicLinksTable).values({
+        userId: user.id,
+        tokenHash: hash,
+        expiresAt,
     })
 
-  return user
-}
+    await EmailService.sendMagicLinkEmail(user.email, raw)
 
-async function magicLink(input : MagicLink) {
-
-// IT SHOULD CHECK IF THE USER exists with the same email or  not if exist do a login else create a new user with emailVerified as false 
-console.log('hit me')
-
-return input
+    return { email: user.email }
 }
 
 const AuthService = {
-  signup,
-  magicLink
+    magicLink
 }
 
 export default AuthService

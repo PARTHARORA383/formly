@@ -1,10 +1,10 @@
 import {Router } from 'express'
 import AuthController from './auth.controller.js';
+import validateBody from '../common/middleware/validate-body.js';
+import { magicLinkSchema } from './auth.types.js';
 
 const router = Router();
 
-router.post('/signup', AuthController.signup)
-
-router.post('/magic-link' ,AuthController.magicLink )
+router.post('/magic-link' , validateBody(magicLinkSchema),AuthController.magicLink)
 
 export default router
