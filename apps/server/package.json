@@ -9,8 +9,8 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
-    "db:migrate":"drizzle-kit migrate",
-    "db:generate":"drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio"
   },
   "keywords": [],
@@ -22,7 +22,9 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "express": "^5.2.1",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "resend": "^6.24.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
