@@ -46,6 +46,35 @@ const AuthController = {
             next(err instanceof ApiError ? err : ApiError.internal())
         }
     },
+    refresh: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const refreshToken = req.cookies.refreshToken
+            if (!refreshToken) {
+                throw ApiError.badRequest('No refresh token')
+            }
+
+            const { accessToken , newRefreshToken} = await AuthService.refresh(refreshToken)
+
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: env.node === 'production',
+                sameSite: env.cookieSameSite,
+                maxAge: 15 * 60 * 1000,
+            })
+
+            
+            res.cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+                secure: env.node === 'production',
+                sameSite: env.cookieSameSite,
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            })
+
+            ApiResponse.success(res, null, 'Refreshed')
+        } catch (err) {
+            next(err instanceof ApiError ? err : ApiError.internal())
+        }
+    }
 }
 
 export default AuthController

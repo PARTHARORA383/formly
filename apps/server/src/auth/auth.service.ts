@@ -3,8 +3,9 @@ import { db } from '../db/index.js'
 import { magicLinksTable, usersTable } from '../db/schema.js'
 import { type MagicLink, type Verify } from './auth.types.js'
 import ApiError from '../common/utils/error.js'
-import { createHash, generateAccessToken, generateRefreshToken, generateToken } from '../common/utils/token.js'
+import { createHash, generateAccessToken, generateRefreshToken, generateToken, verifyRefreshToken } from '../common/utils/token.js'
 import EmailService from '../common/services/email.service.js'
+import type { JwtPayload } from '../common/utils/token.js'
 
 
 async function magicLink(input: MagicLink) {
@@ -81,7 +82,7 @@ async function verify(input: Verify) {
 
     const refreshTokenHash = createHash(refreshToken)
 
-    await db.update(usersTable).set({ refreshTokenHash}).where(eq(usersTable.id , user.id))
+    await db.update(usersTable).set({ refreshTokenHash }).where(eq(usersTable.id, user.id))
 
     return {
         user: {
@@ -96,11 +97,52 @@ async function verify(input: Verify) {
 
 }
 
+async function me(input: any) {
+
+}
+
+
+async function refresh(refreshToken: string) {
+
+    let payload: JwtPayload;
+    try {
+        payload = verifyRefreshToken(refreshToken);
+    } catch (e) {
+        throw ApiError.badRequest('Invalid or expired session')
+    }
+
+    const [user] = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, Number(payload.userId)))
+
+    if (!user || !user.refreshTokenHash) {
+        throw ApiError.badRequest('Invalid or expired session')
+    }
+    const isRefreshValid = createHash(refreshToken) === user?.refreshTokenHash
+
+    if (!isRefreshValid) {
+        throw ApiError.badRequest('Invalid session or expired')
+    }
+
+    const accessToken = generateAccessToken(user.id.toString())
+    const newRefreshToken = generateRefreshToken(user.id.toString())
+
+    const refreshTokenHash = createHash(newRefreshToken)
+
+    await db.update(usersTable).set({ refreshTokenHash }).where(eq(usersTable.id, user.id))
+
+    return {
+        accessToken,
+        newRefreshToken
+    }
+}
 
 
 const AuthService = {
     magicLink,
-    verify
+    verify,
+    refresh
 }
 
 export default AuthService
