@@ -8,6 +8,7 @@ export const usersTable = pgTable("users", {
     password: varchar({ length: 255 }),
     avatarUrl: varchar({ length: 2048 }),
     emailVerifiedAt: timestamp(),
+    refreshTokenHash: varchar({ length: 255 }),
     createdAt: timestamp().notNull().defaultNow(),
 });
 

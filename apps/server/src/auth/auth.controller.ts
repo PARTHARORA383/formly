@@ -2,8 +2,8 @@ import type { Request, Response, NextFunction } from 'express'
 import AuthService from './auth.service.js'
 import ApiResponse from '../common/utils/response.js'
 import ApiError from '../common/utils/error.js'
-import { magicLinkSchema } from './auth.types.js'
 import { ZodError } from 'zod'
+import { env } from '../env.js'
 
 const AuthController = {
     magicLink: async (req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +21,22 @@ const AuthController = {
 
     verify: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const user = await AuthService.verify(req.body)
+            const { user, accessToken, refreshToken } = await AuthService.verify(req.body)
+
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: env.node === 'production',
+                sameSite: env.cookieSameSite,
+                maxAge: 15 * 60 * 1000, // 15 min
+            })
+
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: env.node === 'production',
+                sameSite: env.cookieSameSite,
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            })
+
             ApiResponse.success(res, user, 'Verified successfully')
         } catch (err) {
             if (err instanceof ZodError) {

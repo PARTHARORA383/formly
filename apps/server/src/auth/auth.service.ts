@@ -3,7 +3,7 @@ import { db } from '../db/index.js'
 import { magicLinksTable, usersTable } from '../db/schema.js'
 import { type MagicLink, type Verify } from './auth.types.js'
 import ApiError from '../common/utils/error.js'
-import { createHash, generateToken } from '../common/utils/token.js'
+import { createHash, generateAccessToken, generateRefreshToken, generateToken } from '../common/utils/token.js'
 import EmailService from '../common/services/email.service.js'
 
 
@@ -75,14 +75,28 @@ async function verify(input: Verify) {
             .set({ emailVerifiedAt: new Date() })
             .where(eq(usersTable.id, user.id))
     }
-    
+
+    const accessToken = generateAccessToken(user.id.toString())
+    const refreshToken = generateRefreshToken(user.id.toString())
+
+    const refreshTokenHash = createHash(refreshToken)
+
+    await db.update(usersTable).set({ refreshTokenHash}).where(eq(usersTable.id , user.id))
+
     return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatarUrl: user.avatarUrl,
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+        },
+        accessToken,
+        refreshToken,
     }
+
 }
+
+
 
 const AuthService = {
     magicLink,
