@@ -38,11 +38,15 @@ export function LoginForm({
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Login to your account</h1>
-          <p className="text-sm text-balance text-muted-foreground">
-            {sentTo
-              ? `We've sent a login link to ${sentTo}`
-              : "Enter your email below to login to your account"}
-          </p>
+          {sentTo ? (
+            <div className="mt-2 rounded-lg border bg-muted/50 px-4 py-3 text-sm text-balance text-muted-foreground">
+              We&apos;ve sent a login link to <span className="font-medium text-foreground">{sentTo}</span>
+            </div>
+          ) : (
+            <p className="text-sm text-balance text-muted-foreground">
+              Enter your email below to login to your account
+            </p>
+          )}
         </div>
         {!sentTo && (
           <Field>

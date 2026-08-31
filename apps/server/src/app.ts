@@ -8,6 +8,7 @@ import { env } from './env.js'
 export function createApp() {
 
     const app = express()
+    app.use(cors({ origin: env.cors, credentials: true }))
 
     app.use(express.json())
 
@@ -15,7 +16,6 @@ export function createApp() {
     app.use('/api/v1/email', emailRouter)
 
 
-    app.use(cors({ origin: env.cors, credentials: true }))
     app.get('/health', (req: Request, res: Response) => {
         res.status(200).json({
             message: 'Hello from the form builder backend'
