@@ -4,6 +4,7 @@ import ApiResponse from '../common/utils/response.js'
 import ApiError from '../common/utils/error.js'
 import { magicLinkSchema } from './auth.types.js'
 import { ZodError } from 'zod'
+import { verify } from 'node:crypto'
 
 const AuthController = {
     magicLink: async (req: Request, res: Response, next: NextFunction) => {
@@ -17,6 +18,13 @@ const AuthController = {
             }
             next(err instanceof ApiError ? err : ApiError.internal())
         
+    }
+},
+verify : async (req : Request , res : Response)=>{
+    try{
+        const isVerified = await AuthService.verify(req.body)
+    }catch(e){
+
     }
 }
 }

@@ -7,4 +7,6 @@ const router = Router();
 
 router.post('/magic-link' , validateBody(magicLinkSchema),AuthController.magicLink)
 
+router.post('/verify',AuthController.verify )
+
 export default router

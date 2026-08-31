@@ -2,7 +2,6 @@
 import express, { type Request, type Response } from 'express'
 import authRouter from './auth/auth.route.js'
 import emailRouter from './email/email.route.js'
-import errorHandler from './common/middleware/error.middleware.js'
 
 
 export function createApp() {
@@ -20,7 +19,7 @@ export function createApp() {
         })
     })
 
-    app.use(errorHandler)
+    
 
     return app;
 }

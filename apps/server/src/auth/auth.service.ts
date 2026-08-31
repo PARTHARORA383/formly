@@ -1,11 +1,10 @@
-import { eq } from 'drizzle-orm'
+import { eq, and, isNull, gt } from 'drizzle-orm'
 import { db } from '../db/index.js'
 import { magicLinksTable, usersTable } from '../db/schema.js'
-import { type MagicLink } from './auth.types.js'
+import { type MagicLink, type Verify } from './auth.types.js'
 import ApiError from '../common/utils/error.js'
-import { generateToken } from '../common/utils/token.js'
+import { createHash, generateToken } from '../common/utils/token.js'
 import EmailService from '../common/services/email.service.js'
-import { email } from 'zod'
 
 
 async function magicLink(input: MagicLink) {
@@ -14,7 +13,6 @@ async function magicLink(input: MagicLink) {
 
     let user = isExistingUser[0];
 
-    //signup a user
     if (!user) {
         const [newUser] = await db.insert(usersTable).values({ email: input.email }).returning()
 
@@ -38,8 +36,57 @@ async function magicLink(input: MagicLink) {
     return { email: user.email }
 }
 
+async function verify(input: Verify) {
+
+    const token = createHash(input.token)
+
+    const [link] = await db
+        .select()
+        .from(magicLinksTable)
+        .where(
+            and(
+                eq(magicLinksTable.tokenHash, token),
+                isNull(magicLinksTable.usedAt),
+                gt(magicLinksTable.expiresAt, new Date())
+            )
+        )
+
+    if (!link) {
+        throw ApiError.badRequest('This link is invalid or has expired')
+    }
+
+    await db
+        .update(magicLinksTable)
+        .set({ usedAt: new Date() })
+        .where(eq(magicLinksTable.id, link.id))
+
+    const [user] = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, link.userId))
+
+    if (!user) {
+        throw ApiError.internal()
+    }
+
+    if (!user.emailVerifiedAt) {
+        await db
+            .update(usersTable)
+            .set({ emailVerifiedAt: new Date() })
+            .where(eq(usersTable.id, user.id))
+    }
+    
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+    }
+}
+
 const AuthService = {
-    magicLink
+    magicLink,
+    verify
 }
 
 export default AuthService
