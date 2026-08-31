@@ -74,7 +74,15 @@ const AuthController = {
         } catch (err) {
             next(err instanceof ApiError ? err : ApiError.internal())
         }
-    }
+    },
+    me: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await AuthService.me(req.userId!)
+            ApiResponse.success(res, user, 'Fetched successfully')
+        } catch (err) {
+            next(err instanceof ApiError ? err : ApiError.internal())
+        }
+    },
 }
 
 export default AuthController

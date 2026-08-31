@@ -97,8 +97,23 @@ async function verify(input: Verify) {
 
 }
 
-async function me(input: any) {
+async function me(userId: string) {
 
+    const [user] = await db
+        .select({
+            id: usersTable.id,
+            name: usersTable.name,
+            email: usersTable.email,
+            avatarUrl: usersTable.avatarUrl,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, Number(userId)))
+
+    if (!user) {
+        throw ApiError.notFound('User not found')
+    }
+
+    return user
 }
 
 
@@ -142,7 +157,8 @@ async function refresh(refreshToken: string) {
 const AuthService = {
     magicLink,
     verify,
-    refresh
+    refresh,
+    me,
 }
 
 export default AuthService
