@@ -11,6 +11,12 @@ const env = {
     jwtSecret: process.env.JWT_SECRET,
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
     cookieSameSite: process.env.COOKIE_SAME_SITE as 'lax' | 'strict' | 'none' | undefined,
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    googleRedirectUri: process.env.GOOGLE_REDIRECT_URI,
+    githubClientId: process.env.GITHUB_CLIENT_ID,
+    githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
+    githubRedirectUri: process.env.GITHUB_REDIRECT_URI,
 }
 
 export { env }

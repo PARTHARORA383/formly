@@ -11,4 +11,8 @@ router.post('/verify', validateBody(verifySchema), AuthController.verify)
 router.post('/refresh', AuthController.refresh)
 router.get('/me', authenticate, AuthController.me)
 
+// Social login — :provider resolves against the registry in ./providers
+router.get('/:provider', AuthController.oauthRedirect)
+router.get('/:provider/callback', AuthController.oauthCallback)
+
 export default router

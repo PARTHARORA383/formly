@@ -6,6 +6,7 @@ import ApiError from '../common/utils/error.js'
 import { createHash, generateAccessToken, generateRefreshToken, generateToken, verifyRefreshToken } from '../common/utils/token.js'
 import EmailService from '../common/services/email.service.js'
 import type { JwtPayload } from '../common/utils/token.js'
+import type { OAuthProfile } from './providers/types.js'
 
 
 async function magicLink(input: MagicLink) {
@@ -154,11 +155,66 @@ async function refresh(refreshToken: string) {
 }
 
 
+async function oauthLogin(profile: OAuthProfile) {
+
+    // Only trust a provider-verified email — otherwise someone could register
+    // an unverified address on the provider and take over an existing account.
+    if (!profile.emailVerified) {
+        throw ApiError.badRequest('Your email is not verified with this provider')
+    }
+
+    const existing = await db.select().from(usersTable).where(eq(usersTable.email, profile.email))
+
+    let user = existing[0]
+
+    if (!user) {
+        const [newUser] = await db
+            .insert(usersTable)
+            .values({
+                email: profile.email,
+                name: profile.name,
+                avatarUrl: profile.avatarUrl,
+                emailVerifiedAt: new Date(),
+            })
+            .returning()
+
+        if (!newUser) {
+            throw ApiError.internal()
+        }
+
+        user = newUser
+    } else {
+        // Backfill anything the account was missing — a magic-link signup has
+        // no name or avatar until the user logs in with a social provider.
+        const patch: { name?: string; avatarUrl?: string; emailVerifiedAt?: Date } = {}
+
+        if (!user.name && profile.name) patch.name = profile.name
+        if (!user.avatarUrl && profile.avatarUrl) patch.avatarUrl = profile.avatarUrl
+        if (!user.emailVerifiedAt) patch.emailVerifiedAt = new Date()
+
+        if (Object.keys(patch).length > 0) {
+            await db.update(usersTable).set(patch).where(eq(usersTable.id, user.id))
+        }
+    }
+
+    const accessToken = generateAccessToken(user.id.toString())
+    const refreshToken = generateRefreshToken(user.id.toString())
+
+    await db
+        .update(usersTable)
+        .set({ refreshTokenHash: createHash(refreshToken) })
+        .where(eq(usersTable.id, user.id))
+
+    return { accessToken, refreshToken }
+}
+
+
 const AuthService = {
     magicLink,
     verify,
     refresh,
     me,
+    oauthLogin,
 }
 
 export default AuthService
