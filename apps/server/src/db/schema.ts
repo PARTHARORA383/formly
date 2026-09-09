@@ -1,5 +1,17 @@
 // db/schema.ts
-import { integer, pgTable, varchar, timestamp } from "drizzle-orm/pg-core";
+import {
+    boolean,
+    index,
+    integer,
+    jsonb,
+    numeric,
+    pgEnum,
+    pgTable,
+    text,
+    timestamp,
+    unique,
+    varchar,
+} from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -20,3 +32,120 @@ export const magicLinksTable = pgTable("magic_links", {
     usedAt: timestamp(),
     createdAt: timestamp().notNull().defaultNow(),
 });
+
+export const formStatus = pgEnum("form_status", ["draft", "published", "closed"]);
+
+export const fieldType = pgEnum("field_type", [
+    "short_text",
+    "long_text",
+    "email",
+    "number",
+    "date",
+    "dropdown",
+    "single_select",
+    "multi_select",
+]);
+
+export const formsTable = pgTable(
+    "forms",
+    {
+        id: integer().primaryKey().generatedAlwaysAsIdentity(),
+        ownerId: integer()
+            .notNull()
+            .references(() => usersTable.id, { onDelete: "cascade" }),
+        title: varchar({ length: 255 }).notNull(),
+        description: text(),
+        slug: varchar({ length: 255 }).notNull().unique(),
+        status: formStatus().notNull().default("draft"),
+        // Submit button text, success message — read only with the form, never queried.
+        settings: jsonb().notNull().default({}),
+        publishedAt: timestamp(),
+        createdAt: timestamp().notNull().defaultNow(),
+        updatedAt: timestamp().notNull().defaultNow(),
+    },
+    (table) => [index("forms_ownerId_idx").on(table.ownerId)],
+);
+
+export const formFieldsTable = pgTable(
+    "form_fields",
+    {
+        id: integer().primaryKey().generatedAlwaysAsIdentity(),
+        formId: integer()
+            .notNull()
+            .references(() => formsTable.id, { onDelete: "cascade" }),
+        type: fieldType().notNull(),
+        label: varchar({ length: 500 }).notNull(),
+        description: text(),
+        placeholder: varchar({ length: 255 }),
+        required: boolean().notNull().default(false),
+        position: integer().notNull(),
+        // minLength, maxLength, regex, min, max — read only with the field.
+        config: jsonb().notNull().default({}),
+        // Soft delete: keeps historical answers resolvable.
+        archivedAt: timestamp(),
+        createdAt: timestamp().notNull().defaultNow(),
+        updatedAt: timestamp().notNull().defaultNow(),
+    },
+    (table) => [index("form_fields_formId_idx").on(table.formId)],
+);
+
+export const fieldOptionsTable = pgTable(
+    "field_options",
+    {
+        id: integer().primaryKey().generatedAlwaysAsIdentity(),
+        fieldId: integer()
+            .notNull()
+            .references(() => formFieldsTable.id, { onDelete: "cascade" }),
+        label: varchar({ length: 500 }).notNull(),
+        position: integer().notNull(),
+        // Soft delete: keeps answers that chose this option resolvable.
+        archivedAt: timestamp(),
+        createdAt: timestamp().notNull().defaultNow(),
+    },
+    (table) => [index("field_options_fieldId_idx").on(table.fieldId)],
+);
+
+export const responsesTable = pgTable(
+    "responses",
+    {
+        id: integer().primaryKey().generatedAlwaysAsIdentity(),
+        formId: integer()
+            .notNull()
+            .references(() => formsTable.id, { onDelete: "cascade" }),
+        ipAddress: varchar({ length: 45 }),
+        userAgent: varchar({ length: 512 }),
+        submittedAt: timestamp().notNull().defaultNow(),
+    },
+    (table) => [index("responses_formId_idx").on(table.formId)],
+);
+
+export const answersTable = pgTable(
+    "answers",
+    {
+        id: integer().primaryKey().generatedAlwaysAsIdentity(),
+        responseId: integer()
+            .notNull()
+            .references(() => responsesTable.id, { onDelete: "cascade" }),
+        fieldId: integer()
+            .notNull()
+            .references(() => formFieldsTable.id, { onDelete: "cascade" }),
+        // Exactly one of these is populated, chosen by the field's type.
+        valueText: text(),
+        valueNumber: numeric(),
+        valueDate: timestamp(),
+        optionId: integer().references(() => fieldOptionsTable.id, {
+            onDelete: "cascade",
+        }),
+        createdAt: timestamp().notNull().defaultNow(),
+    },
+    (table) => [
+        index("answers_responseId_idx").on(table.responseId),
+        index("answers_fieldId_idx").on(table.fieldId),
+        index("answers_optionId_idx").on(table.optionId),
+        // One answer per field per response. NULLS NOT DISTINCT is what makes
+        // this apply to non-choice fields too, where optionId is null.
+        unique("answers_response_field_option_key")
+            .on(table.responseId, table.fieldId, table.optionId)
+            .nullsNotDistinct(),
+    ],
+);
