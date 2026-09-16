@@ -55,6 +55,7 @@ export const formsTable = pgTable(
             .references(() => usersTable.id, { onDelete: "cascade" }),
         title: varchar({ length: 255 }).notNull(),
         description: text(),
+        publicId: varchar({ length: 12 }).notNull().unique(),
         slug: varchar({ length: 255 }).notNull().unique(),
         status: formStatus().notNull().default("draft"),
         // Submit button text, success message — read only with the form, never queried.
@@ -78,10 +79,7 @@ export const formFieldsTable = pgTable(
         description: text(),
         placeholder: varchar({ length: 255 }),
         required: boolean().notNull().default(false),
-        position: integer().notNull(),
-        // minLength, maxLength, regex, min, max — read only with the field.
         config: jsonb().notNull().default({}),
-        // Soft delete: keeps historical answers resolvable.
         archivedAt: timestamp(),
         createdAt: timestamp().notNull().defaultNow(),
         updatedAt: timestamp().notNull().defaultNow(),
