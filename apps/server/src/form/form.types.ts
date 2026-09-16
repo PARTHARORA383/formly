@@ -1,10 +1,9 @@
 import  z from "zod"
 
+
 const createFormSchema = z.object({
     title: z.string().min(1, "Title is required"),
-    description: z.string().optional(),
-    ownerId : z.number()
-})
+    description: z.string().optional(),})
 
 const fieldTypeSchema = z.enum([
     "short_text",
@@ -18,10 +17,20 @@ const fieldTypeSchema = z.enum([
 ])
 
 const fieldOptionInputSchema = z.object({
+    // Present = existing row to update, absent = new option to insert
+    id: z.number().int().optional(),
     label: z.string().min(1, "Option label is required").max(500),
 })
 
 const fieldInputSchema = z.object({
+    // Present = existing row to update, absent = new field to insert.
+    // Without this the server can't tell the two apart, so every save would
+    // archive and re-insert, giving each question a new id and breaking
+    // per-field analytics.
+    id: z.number().int().optional(),
+    // Client-side key for unsaved fields, echoed back beside the real id so
+    // the client can reconcile without replacing its local state.
+    tempId: z.string().optional(),
     type: fieldTypeSchema,
     label: z.string().min(1, "Label is required").max(500),
     description: z.string().nullable().optional(),
@@ -38,7 +47,9 @@ const updateFormSchema = z.object({
     fields: z.array(fieldInputSchema),
 })
 
-type CreateFormInput = z.infer<typeof createFormSchema>
+type CreateFormBody = z.infer<typeof createFormSchema>
+// What the service receives: the validated body plus the authenticated owner.
+type CreateFormInput = CreateFormBody & { ownerId: number }
 type FieldType = z.infer<typeof fieldTypeSchema>
 type FieldOptionInput = z.infer<typeof fieldOptionInputSchema>
 type FieldInput = z.infer<typeof fieldInputSchema>

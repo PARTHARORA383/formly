@@ -56,7 +56,6 @@ export const formsTable = pgTable(
         title: varchar({ length: 255 }).notNull(),
         description: text(),
         publicId: varchar({ length: 12 }).notNull().unique(),
-        slug: varchar({ length: 255 }).notNull().unique(),
         status: formStatus().notNull().default("draft"),
         // Submit button text, success message — read only with the form, never queried.
         settings: jsonb().notNull().default({}),
@@ -79,6 +78,8 @@ export const formFieldsTable = pgTable(
         description: text(),
         placeholder: varchar({ length: 255 }),
         required: boolean().notNull().default(false),
+        // Derived from the field's index in the PUT payload.
+        position: integer().notNull(),
         config: jsonb().notNull().default({}),
         archivedAt: timestamp(),
         createdAt: timestamp().notNull().defaultNow(),

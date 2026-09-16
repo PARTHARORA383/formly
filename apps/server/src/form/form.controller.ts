@@ -3,7 +3,6 @@ import ApiResponse from "../common/utils/response.js"
 import ApiError from "../common/utils/error.js"
 import { ZodError } from "zod"
 import FormService from "./form.service.js"
-import { parsePublicId } from "../common/utils/slug.js"
 
 const FormController = {
 
@@ -23,9 +22,7 @@ const FormController = {
     },
     updateForm: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // The slug's trailing segment is the immutable publicId, so a
-            // renamed form still resolves from an older URL.
-            const publicId = parsePublicId(String(req.params.slug))
+            const publicId = String(req.params.publicId)
             const form = await FormService.updateForm(Number(req.userId), publicId, req.body)
             ApiResponse.success(res, form, 'Form updated successfully')
         } catch (err) {
