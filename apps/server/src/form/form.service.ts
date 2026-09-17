@@ -21,13 +21,15 @@ const FormService = {
     }
     ,
     updateForm: async (ownerId: number, publicId: string, input: UpdateFormInput) => {
+
+        const { title, description, settings, fields } = input
+
         return db.transaction(async (tx) => {
             const [form] = await tx
                 .select()
                 .from(formsTable)
                 .where(and(eq(formsTable.publicId, publicId), eq(formsTable.ownerId, ownerId)))
 
-            // 404 rather than 403 — don't reveal that someone else's form exists.
             if (!form) {
                 throw ApiError.notFound('Form not found')
             }
@@ -35,10 +37,9 @@ const FormService = {
             const [updatedForm] = await tx
                 .update(formsTable)
                 .set({
-                    title: input.title,
-                    description: input.description ?? null,
-                    ...(input.settings ? { settings: input.settings } : {}),
-                    // defaultNow() only fires on insert, so bump it explicitly.
+                    title,
+                    description,
+                    settings,
                     updatedAt: new Date(),
                 })
                 .where(eq(formsTable.id, form.id))
@@ -49,8 +50,6 @@ const FormService = {
                 .from(formFieldsTable)
                 .where(and(eq(formFieldsTable.formId, form.id), isNull(formFieldsTable.archivedAt)))
 
-            // Only ids already on THIS form may be treated as updates — otherwise
-            // a client could pass someone else's field id and edit their form.
             const existingById = new Map(existingFields.map((f) => [f.id, f]))
             const seenFieldIds = new Set<number>()
 
@@ -63,8 +62,8 @@ const FormService = {
                     formId: form.id,
                     type: incoming.type,
                     label: incoming.label,
-                    description: incoming.description ?? null,
-                    placeholder: incoming.placeholder ?? null,
+                    description: incoming.description ,
+                    placeholder: incoming.placeholder,
                     required: incoming.required,
                     position: index,
                     config: incoming.config,
