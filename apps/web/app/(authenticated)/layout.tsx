@@ -1,6 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { AppHeader } from "@/components/app-header"
+import { AppSidebar } from "@/components/app/app-sidebar"
+import { AppHeader } from "@/components/app/app-header"
+import { AuthGuard } from "@/components/app/auth-guard"
 
 export default function AuthenticatedLayout({
   children,
@@ -8,12 +9,14 @@ export default function AuthenticatedLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <AppHeader />
-        <main className="flex-1 p-6">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
+    <AuthGuard>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <AppHeader />
+          <main className="flex-1 p-6">{children}</main>
+        </SidebarInset>
+      </SidebarProvider>
+    </AuthGuard>
   )
 }
