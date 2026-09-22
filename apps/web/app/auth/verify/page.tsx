@@ -1,37 +1,39 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Spinner } from "@/components/kibo-ui/spinner"
-import AuthApi from "@/lib/api/auth"
+import { useVerify } from "@/lib/query/auth"
 
 export default function VerifyPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [error, setError] = useState<string | null>(null)
+  const token = searchParams.get("token")
+
+  const { mutate, isError } = useVerify()
+  const fired = useRef(false)
 
   useEffect(() => {
-    const token = searchParams.get("token")
+    if (!token || fired.current) return
 
-    if (!token) {
-      setError("This link is invalid or has expired.")
-      return
-    }
+    // StrictMode runs effects twice in dev. The token is single-use, so the
+    // second call would fail against an already-consumed link.
+    fired.current = true
 
-    AuthApi.verify(token)
-      .then(() => {
-        router.push("/")
-      })
-      .catch(() => {
-        setError("This link is invalid or has expired.")
-      })
-  }, [searchParams, router])
+    mutate(token, {
+      onSuccess: () => router.push("/dashboard"),
+    })
+  }, [token, mutate, router])
+
+  const failed = !token || isError
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
-      {error ? (
+      {failed ? (
         <>
-          <p className="text-sm text-muted-foreground">{error}</p>
+          <p className="text-sm text-muted-foreground">
+            This link is invalid or has expired.
+          </p>
           <a href="/login" className="text-sm underline underline-offset-4">
             Back to login
           </a>

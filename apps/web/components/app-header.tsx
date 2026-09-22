@@ -8,7 +8,7 @@ import { Moon02Icon, Sun01Icon, ArrowDown01Icon } from "@hugeicons/core-free-ico
 import { Button } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger, useSidebar } from "@workspace/ui/components/sidebar"
-import { useAuth } from "@/components/auth-provider"
+import { useMe } from "@/lib/query/auth"
 
 const titles: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -18,15 +18,13 @@ const titles: Record<string, string> = {
 export function AppHeader() {
   const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
-  const { user } = useAuth()
+  const { data: user } = useMe()
   const { state } = useSidebar()
 
-  // resolvedTheme is undefined during SSR, so the icon would differ between
-  // the server and client render. Wait for mount before showing it.
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
-  const title = titles[pathname] ?? "Formly"
+  const title = titles[pathname] 
 
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">

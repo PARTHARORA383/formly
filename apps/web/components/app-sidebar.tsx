@@ -22,7 +22,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@workspace/ui/components/sidebar"
-import { useAuth } from "@/components/auth-provider"
+import { useMe } from "@/lib/query/auth"
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: Home01Icon },
@@ -31,7 +31,7 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { data: user } = useMe()
 
   return (
     <Sidebar collapsible="icon">
