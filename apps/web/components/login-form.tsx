@@ -12,23 +12,30 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@/components/kibo-ui/spinner"
-import AuthApi from "@/lib/api/auth"
+import { useMagicLink } from "@/lib/query/auth"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [sentTo, setSentTo] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [oauthError, setOauthError] = useState<string | null>(null)
+
+  const { mutate, isPending, isSuccess, isError, variables } = useMagicLink()
+
+  // `variables` is whatever was passed to mutate(), so the email the link went
+  // to comes from the mutation itself — no separate state to keep in sync.
+  const sentTo = isSuccess ? variables : null
+
+  const errorMessage =
+    oauthError ?? (isError ? "Couldn't send the link. Please try again." : null)
 
   // A failed OAuth callback redirects back here as /login?error=...
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const oauthError = params.get("error")
+    const fromCallback = params.get("error")
 
-    if (oauthError) {
-      setError(oauthError)
+    if (fromCallback) {
+      setOauthError(fromCallback)
       // Drop the param so a refresh doesn't keep showing the error.
       window.history.replaceState({}, "", window.location.pathname)
     }
@@ -40,16 +47,10 @@ export function LoginForm({
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/${provider}`
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const email = new FormData(e.currentTarget).get("email") as string
-    setIsLoading(true)
-    try {
-      await AuthApi.magicLink(email)
-      setSentTo(email)
-    } finally {
-      setIsLoading(false)
-    }
+    mutate(email)
   }
 
   return (
@@ -67,9 +68,9 @@ export function LoginForm({
             </p>
           )}
         </div>
-        {error && (
+        {errorMessage && (
           <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-balance text-destructive">
-            {error}
+            {errorMessage}
           </div>
         )}
         {!sentTo && (
@@ -79,8 +80,8 @@ export function LoginForm({
           </Field>
         )}
         <Field>
-          <Button type="submit" disabled={isLoading || !!sentTo}>
-            {isLoading ? (
+          <Button type="submit" disabled={isPending || !!sentTo}>
+            {isPending ? (
               <Spinner variant="throbber" className="size-4" />
             ) : sentTo ? (
               "Email sent"
