@@ -5,6 +5,7 @@ import emailRouter from './email/email.route.js'
 import cors from 'cors'
 import { env } from './env.js'
 import cookieParser from 'cookie-parser'
+import formRouter from './form/form.route.js'
 
 export function createApp() {
 
@@ -16,6 +17,7 @@ export function createApp() {
 
     app.use('/api/v1/auth', authRouter)
     app.use('/api/v1/email', emailRouter)
+    app.use('/api/v1/form', formRouter)
 
 
     app.get('/health', (req: Request, res: Response) => {

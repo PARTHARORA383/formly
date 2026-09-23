@@ -5,31 +5,20 @@ import {
   CollapsiblePanel,
 } from "@workspace/ui/components/collapsible-panels"
 
-type FormBuilderLayoutProps = {
-  questions: React.ReactNode
-  canvas: React.ReactNode
-  settings: React.ReactNode
-}
-
-/**
- * The three panel frame for the builder. Named slots rather than children, so
- * callers can't accidentally reorder the panels or pass the wrong count.
- */
-export function FormBuilderLayout({
-  questions,
-  canvas,
-  settings,
-}: FormBuilderLayoutProps) {
+/** The three panel frame for the builder. */
+export function FormBuilderLayout() {
   return (
-    <CollapsiblePanels className="h-full ">
+    <CollapsiblePanels className="h-full">
       <CollapsiblePanel defaultSize={20} minSize={15} collapsible side="left">
-        {questions}
+        <div className="p-3 text-sm">Questions</div>
       </CollapsiblePanel>
 
-      <CollapsiblePanel defaultSize={55}>{canvas}</CollapsiblePanel>
+      <CollapsiblePanel defaultSize={55}>
+        <div className="p-3 text-sm">Canvas</div>
+      </CollapsiblePanel>
 
       <CollapsiblePanel defaultSize={25} minSize={20} collapsible side="right">
-        {settings}
+        <div className="p-3 text-sm">Settings</div>
       </CollapsiblePanel>
     </CollapsiblePanels>
   )
