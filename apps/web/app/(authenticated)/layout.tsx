@@ -1,5 +1,3 @@
-import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
-import { AppSidebar } from "@/components/app/app-sidebar"
 import { AppHeader } from "@/components/app/app-header"
 import { AuthGuard } from "@/components/app/auth-guard"
 
@@ -10,13 +8,10 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <AuthGuard>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <main className="flex-1 p-6">{children}</main>
-        </SidebarInset>
-      </SidebarProvider>
+      <div className="flex h-svh flex-col">
+        <AppHeader />
+        <main className="min-h-0 flex-1 overflow-auto">{children}</main>
+      </div>
     </AuthGuard>
   )
 }
