@@ -1,12 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import AuthApi from "@/lib/api/auth"
-
-type User = {
-  id: number
-  name: string | null
-  email: string
-  avatarUrl: string | null
-}
+import type { User } from "@/types/user"
 
 const authKeys = {
   me: ["auth", "me"] as const,
@@ -49,4 +43,3 @@ function useVerify() {
 }
 
 export { authKeys, useMe, useMagicLink, useVerify }
-export type { User }
