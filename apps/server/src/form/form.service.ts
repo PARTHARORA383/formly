@@ -1,7 +1,7 @@
 import type { CreateFormInput, UpdateFormInput } from "./form.types.js";
 import { db } from "../db/index.js";
 import { fieldOptionsTable, formFieldsTable, formsTable } from "../db/schema.js";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { generatePublicId } from "../common/utils/id.js";
 import ApiError from "../common/utils/error.js";
 
@@ -18,6 +18,14 @@ const FormService = {
         }
 
         return form
+    }
+    ,
+    getForms: async (ownerId: number) => {
+        return db
+            .select()
+            .from(formsTable)
+            .where(eq(formsTable.ownerId, ownerId))
+            .orderBy(desc(formsTable.updatedAt))
     }
     ,
     updateForm: async (ownerId: number, publicId: string, input: UpdateFormInput) => {
