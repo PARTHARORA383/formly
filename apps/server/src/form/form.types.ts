@@ -36,6 +36,7 @@ const fieldInputSchema = z.object({
     description: z.string().nullable().optional(),
     placeholder: z.string().max(255).nullable().optional(),
     required: z.boolean().default(false),
+    position: z.number().int().optional(),
     config: z.record(z.string(), z.unknown()).default({}),
     options: z.array(fieldOptionInputSchema).optional(),
 })
