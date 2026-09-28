@@ -73,7 +73,7 @@ const FormService = {
                     description: incoming.description ,
                     placeholder: incoming.placeholder,
                     required: incoming.required,
-                    position: index,
+                    position: incoming.position ?? index,
                     config: incoming.config,
                 }
 

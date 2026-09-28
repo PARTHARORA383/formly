@@ -19,6 +19,7 @@ const useFields = create<FieldsStore>((set) => ({
                     label: "Untitled Field",
                     description: null,
                     required: false,
+                    position: state.fields.length,
                     config: {},
                 } as FormField,
             ],
