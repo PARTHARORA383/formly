@@ -28,7 +28,7 @@ type CollapsiblePanelProps = {
   maxSize?: number
   /** Adds the collapse toggle. Omit for panels that should always stay open. */
   collapsible?: boolean
-  /** Which edge the toggle sits on, and which way the chevrons point. */
+  /** Which way the chevrons point: a left panel collapses left. The toggle is always top-right. */
   side?: "left" | "right"
   className?: string
 }
@@ -126,27 +126,25 @@ function CollapsiblePanel({
       collapsible
       collapsedSize={COLLAPSED_WIDTH}
       elementRef={elementRef}
-      className={cn("flex flex-col overflow-hidden", className)}
+      className={cn("relative flex flex-col overflow-hidden", className)}
     >
-      <div
-        className={cn(
-          "flex shrink-0 items-center p-2",
-          isCollapsed ? "justify-center" : side === "left" ? "justify-end" : "justify-start"
-        )}
+      {/* Pinned to the top-right and taken out of the flow, so it never pushes
+          the panel's content down. It sits outside the scrolling body, so it
+          stays put while content scrolls. right-2 also lands it in the middle
+          of the 44px collapsed rail. Content with right-aligned items on its
+          first line needs right padding to clear it. */}
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
+        className="absolute top-2 right-2 z-10 flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
-          className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <HugeiconsIcon
-            icon={isCollapsed ? expandIcon : collapseIcon}
-            strokeWidth={2}
-            className="size-4"
-          />
-        </button>
-      </div>
+        <HugeiconsIcon
+          icon={isCollapsed ? expandIcon : collapseIcon}
+          strokeWidth={2}
+          className="size-4"
+        />
+      </button>
 
       {/* Faded rather than `hidden`, since display:none can't be transitioned.
           Kept mounted so panel state (scroll, focus, drafts) survives a
