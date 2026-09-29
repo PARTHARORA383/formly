@@ -3,7 +3,7 @@
 import * as React from "react"
 import { FieldGroup } from "@workspace/ui/components/field"
 import { Separator } from "@workspace/ui/components/separator"
-import { useFormDraft, fieldKey } from "@/lib/providers/form-draft-provider"
+import useFields, { fieldKey, selectSelectedField } from "@/lib/zustand/form"
 import { FieldTypeSelect } from "@/components/app/form/field-settings/field-type-select"
 import { FieldLabelInput } from "@/components/app/form/field-settings/field-label-input"
 import { FieldDescriptionInput } from "@/components/app/form/field-settings/field-description-input"
@@ -12,10 +12,12 @@ import { FieldRequiredSwitch } from "@/components/app/form/field-settings/field-
 import { FieldOptionsEditor } from "@/components/app/form/field-settings/field-options-editor"
 import { FIELD_TYPES } from "@/utils/constants"
 
-// The only component in this folder that knows about the draft. The controls
+// The only component in this folder that reads the store. The controls
 // above take a value and an onChange, so each works without it.
 export function FieldSettings() {
-  const { selectedField, updateField, changeFieldType } = useFormDraft()
+  const selectedField = useFields(selectSelectedField)
+  const updateField = useFields((state) => state.updateField)
+  const changeFieldType = useFields((state) => state.changeFieldType)
   const baseId = React.useId()
 
   if (!selectedField) {

@@ -2,12 +2,12 @@
 
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@workspace/ui/components/button"
-import { useFormDraft } from "@/lib/providers/form-draft-provider"
+import useFields from "@/lib/zustand/form"
 import { ELEMENT_GROUPS, FIELD_TYPES } from "@/utils/constants"
 
 // Clicking an element adds a question of that type to the canvas.
 export function ElementsPanel() {
-  const { addField } = useFormDraft()
+  const addField = useFields((state) => state.addField)
 
   return (
     <div className="flex flex-col gap-5 p-3">

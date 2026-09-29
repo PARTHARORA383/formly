@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { FieldRenderer } from "@/components/app/form/field"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
-import { useFormDraft, fieldKey } from "@/lib/providers/form-draft-provider"
+import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
 
 const noop = () => {}
@@ -53,7 +53,9 @@ function CanvasItem({
 }
 
 export function FormCanvas() {
-  const { fields, selectedKey, selectField } = useFormDraft()
+  const fields = useFields((state) => state.fields)
+  const selectedKey = useFields((state) => state.selectedKey)
+  const selectField = useFields((state) => state.selectField)
 
   return (
     <div className="flex h-full flex-col">
