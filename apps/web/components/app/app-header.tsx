@@ -13,6 +13,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
+import { UserAvatar } from "@/components/app/user-avatar"
 import { useMe } from "@/lib/query/auth"
 
 const navItems = [
@@ -78,9 +79,7 @@ export function AppHeader() {
         </Button>
 
         <Button variant="ghost" className="gap-2">
-          <div className="flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
-            {(user?.name ?? user?.email ?? "U").charAt(0).toUpperCase()}
-          </div>
+          <UserAvatar user={user} size={24} />
           <span className="text-sm">{user?.name ?? "Account"}</span>
           <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} className="size-4" />
         </Button>
