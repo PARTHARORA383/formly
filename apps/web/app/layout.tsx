@@ -5,7 +5,7 @@ import { Toaster } from "sonner"
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@workspace/ui/lib/utils";
-import { QueryProvider } from "@/lib/query/query-provider"
+import { QueryProvider } from "@/lib/providers/query-provider"
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
 const fontMono = Geist_Mono({
