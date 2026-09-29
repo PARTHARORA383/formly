@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { CursorPointer01Icon } from "@hugeicons/core-free-icons"
 import { FieldGroup } from "@workspace/ui/components/field"
 import { Separator } from "@workspace/ui/components/separator"
 import useFields, { fieldKey, selectSelectedField } from "@/lib/zustand/form"
@@ -10,6 +11,7 @@ import { FieldDescriptionInput } from "@/components/app/form/field-settings/fiel
 import { FieldPlaceholderInput } from "@/components/app/form/field-settings/field-placeholder-input"
 import { FieldRequiredSwitch } from "@/components/app/form/field-settings/field-required-switch"
 import { FieldOptionsEditor } from "@/components/app/form/field-settings/field-options-editor"
+import { EmptyState } from "@/components/common/empty-state"
 import { FIELD_TYPES } from "@/utils/constants"
 
 // The only component in this folder that reads the store. The controls
@@ -22,9 +24,15 @@ export function FieldSettings() {
 
   if (!selectedField) {
     return (
-      <p className="py-3 pr-12 pl-4 text-sm text-muted-foreground">
-        Select a question to edit its settings.
-      </p>
+      <div className="flex flex-col gap-4 px-4 pt-3 pb-4">
+        <h3 className="text-sm font-medium">Question settings</h3>
+
+        <EmptyState
+          icon={CursorPointer01Icon}
+          title="No question selected"
+          description="Select a question to edit its settings."
+        />
+      </div>
     )
   }
 
