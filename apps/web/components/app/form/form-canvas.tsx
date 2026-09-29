@@ -1,7 +1,15 @@
 "use client"
 
 import * as React from "react"
+import { useDroppable } from "@dnd-kit/core"
+import { Note01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@workspace/ui/lib/utils"
+import {
+  CANVAS_DROPPABLE_ID,
+  CANVAS_ITEM_ATTRIBUTE,
+  useDropIndex,
+} from "@/components/app/form/form-dnd"
+import { EmptyState } from "@/components/common/empty-state"
 import { FieldRenderer } from "@/components/app/form/field"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
@@ -28,6 +36,7 @@ function CanvasItem({
   return (
     <div
       ref={ref}
+      {...{ [CANVAS_ITEM_ATTRIBUTE]: "" }}
       role="button"
       tabIndex={0}
       aria-pressed={selected}
@@ -39,7 +48,7 @@ function CanvasItem({
         }
       }}
       className={cn(
-        "cursor-pointer rounded-lg border p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "animate-in cursor-pointer rounded-lg border p-4 duration-300 fade-in slide-in-from-top-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected ? "border-primary bg-primary/5" : "hover:bg-muted/50"
       )}
     >
@@ -52,10 +61,26 @@ function CanvasItem({
   )
 }
 
+// A line that fades in where the dragged element would land. The negative
+// margin cancels most of the flex gap around it so the list doesn't shift.
+function DropIndicator({ active }: { active: boolean }) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "-my-1.5 h-0.5 rounded-full bg-primary transition-[opacity,margin] duration-150",
+        active ? "opacity-100" : "opacity-0"
+      )}
+    />
+  )
+}
+
 export function FormCanvas() {
   const fields = useFields((state) => state.fields)
   const selectedKey = useFields((state) => state.selectedKey)
   const selectField = useFields((state) => state.selectField)
+  const dropIndex = useDropIndex()
+  const { setNodeRef, isOver } = useDroppable({ id: CANVAS_DROPPABLE_ID })
 
   return (
     <div className="flex h-full flex-col">
@@ -66,25 +91,36 @@ export function FormCanvas() {
         <AddQuestionButton />
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto p-4">
+      <div
+        ref={setNodeRef}
+        className={cn(
+          "min-h-0 flex-1 overflow-auto p-4 transition-colors duration-200",
+          isOver && "bg-primary/5"
+        )}
+      >
         {fields.length === 0 ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">
-            No questions yet. Add your first one.
-          </p>
+          <EmptyState
+            icon={Note01Icon}
+            title="No questions yet"
+            description="Add your first question to get started."
+          />
         ) : (
           <div className="mx-auto flex max-w-xl flex-col gap-3">
-            {fields.map((field) => {
+            {fields.map((field, index) => {
               const key = fieldKey(field)
 
               return (
-                <CanvasItem
-                  key={key}
-                  field={field}
-                  selected={key === selectedKey}
-                  onSelect={() => selectField(key)}
-                />
+                <React.Fragment key={key}>
+                  <DropIndicator active={dropIndex === index} />
+                  <CanvasItem
+                    field={field}
+                    selected={key === selectedKey}
+                    onSelect={() => selectField(key)}
+                  />
+                </React.Fragment>
               )
             })}
+            <DropIndicator active={dropIndex === fields.length} />
           </div>
         )}
       </div>

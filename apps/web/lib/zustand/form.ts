@@ -11,7 +11,7 @@ export function fieldKey(field: FormField) {
 type FieldsStore = {
     fields: Fields
     selectedKey: string | null
-    addField: (type?: FieldType) => void
+    addField: (type?: FieldType, index?: number) => void
     removeField: (key: string) => void
     selectField: (key: string) => void
     updateField: (key: string, patch: Partial<FormField>) => void
@@ -23,20 +23,29 @@ const useFields = create<FieldsStore>((set) => ({
     fields: [],
     selectedKey: null,
 
-    addField: (type = "short_text") =>
+    // index inserts at that spot (a drop between questions); omitted appends.
+    addField: (type = "short_text", index) =>
         set((state) => {
+            const at = Math.min(Math.max(index ?? state.fields.length, 0), state.fields.length)
             const field: FormField = {
                 tempId: `tmp_${crypto.randomUUID()}`,
                 type,
                 label: "Untitled question",
                 required: false,
-                position: state.fields.length,
+                position: at,
                 config: {},
                 // A choice question with no options would render empty.
                 ...(FIELD_TYPES[type].hasOptions ? { options: defaultOptions() } : {}),
             }
 
-            return { fields: [...state.fields, field], selectedKey: fieldKey(field) }
+            const fields = [...state.fields]
+            fields.splice(at, 0, field)
+
+            // position follows the array index, so it is renumbered after an insert.
+            return {
+                fields: fields.map((item, position) => ({ ...item, position })),
+                selectedKey: fieldKey(field),
+            }
         }),
 
     removeField: (key) =>

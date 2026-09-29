@@ -6,6 +6,7 @@ import {
   CollapsiblePanel,
 } from "@workspace/ui/components/collapsible-panels"
 import useFields from "@/lib/zustand/form"
+import { FormDndProvider } from "@/components/app/form/form-dnd"
 import { ElementsPanel } from "@/components/app/form/elements-panel"
 import { FormCanvas } from "@/components/app/form/form-canvas"
 import { FieldSettings } from "@/components/app/form/field-settings/field-settings"
@@ -19,6 +20,7 @@ export function FormBuilderLayout() {
   useEffect(() => reset, [reset])
 
   return (
+    <FormDndProvider>
     <CollapsiblePanels className="h-full">
       <CollapsiblePanel
         defaultSize={20}
@@ -38,5 +40,6 @@ export function FormBuilderLayout() {
         <FieldSettings />
       </CollapsiblePanel>
     </CollapsiblePanels>
+    </FormDndProvider>
   )
 }
