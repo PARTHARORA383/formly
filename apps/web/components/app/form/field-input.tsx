@@ -9,8 +9,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import type { FormField } from "@/types/field"
+import type { FieldOption, FormField } from "@/types/field"
 import type { AnswerValue } from "@/types/answer"
+
+// Options only get an id once they are saved. Until then String(option.id) is
+// "undefined" for every one of them, so they would all share a value and a DOM
+// id. Falling back to the label text keeps them distinct in the meantime.
+function optionValue(option: FieldOption) {
+    return String(option.id ?? option.label)
+}
+
+// Keys and DOM ids also need to survive two unsaved options sharing a label, so
+// they fall back to the position rather than the text.
+function optionKey(option: FieldOption, index: number) {
+    return option.id ?? `new-${index}`
+}
 
 export function FieldInput({
     id,
@@ -33,7 +46,7 @@ export function FieldInput({
                 <Input
                     id={id}
                     type="text"
-                    placeholder={field.placeholder ?? undefined}
+                    placeholder={field.placeholder ?? 'Enter your text here'}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -46,7 +59,7 @@ export function FieldInput({
                 <Input
                     id={id}
                     type="email"
-                    placeholder={field.placeholder ?? undefined}
+                    placeholder={field.placeholder ?? 'Enter your email here'}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -59,7 +72,7 @@ export function FieldInput({
                 <Input
                     id={id}
                     type="number"
-                    placeholder={field.placeholder ?? undefined}
+                    placeholder={field.placeholder ?? 'Enter a number'}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -83,7 +96,7 @@ export function FieldInput({
             return (
                 <Textarea
                     id={id}
-                    placeholder={field.placeholder ?? undefined}
+                    placeholder={field.placeholder ?? 'Enter your text here'}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -95,14 +108,15 @@ export function FieldInput({
             return (
                 <Select
                     value={(value as string)}
-                    onValueChange={(next) => onChange(next)}
+                    // Base UI passes null when the selection is cleared.
+                    onValueChange={(next) => onChange(next ?? undefined)}
                 >
                     <SelectTrigger id={id} aria-invalid={!!error}>
                         <SelectValue placeholder={field.placeholder ?? "Select an option"} />
                     </SelectTrigger>
                     <SelectContent>
-                        {options.map((option) => (
-                            <SelectItem key={option.id} value={String(option.id)}>
+                        {options.map((option, index) => (
+                            <SelectItem key={optionKey(option, index)} value={optionValue(option)}>
                                 {option.label}
                             </SelectItem>
                         ))}
@@ -117,11 +131,11 @@ export function FieldInput({
                     onValueChange={(next) => onChange(next)}
                     aria-invalid={!!error}
                 >
-                    {options.map((option) => {
-                        const optionId = `${id}-${option.id}`
+                    {options.map((option, index) => {
+                        const optionId = `${id}-${optionKey(option, index)}`
                         return (
-                            <div key={option.id} className="flex items-center gap-2">
-                                <RadioGroupItem id={optionId} value={String(option.id)} />
+                            <div key={optionKey(option, index)} className="flex items-center gap-2">
+                                <RadioGroupItem id={optionId} value={optionValue(option)} />
                                 <label htmlFor={optionId} className="text-sm">
                                     {option.label}
                                 </label>
@@ -135,11 +149,11 @@ export function FieldInput({
             const selected = new Set((value as string[]) ?? [])
             return (
                 <div className="flex flex-col gap-2">
-                    {options.map((option) => {
-                        const key = String(option.id)
-                        const optionId = `${id}-${key}`
+                    {options.map((option, index) => {
+                        const key = optionValue(option)
+                        const optionId = `${id}-${optionKey(option, index)}`
                         return (
-                            <div key={option.id} className="flex items-center gap-2">
+                            <div key={optionKey(option, index)} className="flex items-center gap-2">
                                 <Checkbox
                                     id={optionId}
                                     checked={selected.has(key)}
