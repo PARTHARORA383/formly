@@ -11,14 +11,27 @@ import {
   ResizablePanelGroup,
 } from "@workspace/ui/components/resizable"
 
-const COLLAPSED_PX = 44
+// Same numbers as the shadcn sidebar: a 3rem icon rail and a 200ms linear
+// width transition.
+const COLLAPSED_PX = 48
 const COLLAPSED_WIDTH = `${COLLAPSED_PX}px`
-const ANIMATION_MS = 400
-// A spring settle rather than a plain ease — quick off the mark, then eases
-// into the target. Deliberately without overshoot: overshooting flex-grow
-// would shove the neighbouring panels past their final width and read as a
-// glitch rather than a bounce.
-const SPRING = "cubic-bezier(0.32, 0.72, 0, 1)"
+const ANIMATION_MS = 200
+const EASING = "linear"
+
+type CollapsiblePanelContextValue = {
+  isCollapsed: boolean
+  expand: () => void
+}
+
+const CollapsiblePanelContext = React.createContext<CollapsiblePanelContextValue>({
+  isCollapsed: false,
+  expand: () => {},
+})
+
+/** Lets content inside a panel react to it being collapsed, e.g. a rail icon that opens it. */
+function useCollapsiblePanel() {
+  return React.useContext(CollapsiblePanelContext)
+}
 
 type CollapsiblePanelProps = {
   children: React.ReactNode
@@ -30,6 +43,13 @@ type CollapsiblePanelProps = {
   collapsible?: boolean
   /** Which way the chevrons point: a left panel collapses left. The toggle is always top-right. */
   side?: "left" | "right"
+  /**
+   * Collapse to an icon rail, like the shadcn sidebar's `collapsible="icon"`.
+   * The content stays mounted and in place while the panel narrows and clips
+   * it. Style it with `group-data-[collapsible=icon]:` (labels fading out,
+   * buttons shrinking to icons). Without this the content just fades away.
+   */
+  iconMode?: boolean
   className?: string
 }
 
@@ -40,12 +60,18 @@ function CollapsiblePanel({
   maxSize,
   collapsible = false,
   side = "left",
+  iconMode = false,
   className,
 }: CollapsiblePanelProps) {
   const panelRef = usePanelRef()
   const elementRef = React.useRef<HTMLDivElement>(null)
+  const bodyRef = React.useRef<HTMLDivElement>(null)
   const [isCollapsed, setIsCollapsed] = React.useState(false)
   const animationTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  // True while a button-driven collapse/expand is animating. The width observer
+  // below must stay quiet then: mid-animation the width is still above the
+  // collapsed size, so it would flip the state straight back.
+  const isAnimating = React.useRef(false)
 
   // The button drives state directly so the icon and body flip immediately,
   // without waiting on a callback. The panel handle's isCollapsed() and the
@@ -56,18 +82,36 @@ function CollapsiblePanel({
     const element = elementRef.current
     if (!panel) return
 
+    isAnimating.current = true
+
+    // Panels without an icon rail keep their content at the open width while
+    // the edge slides over it, rather than letting it reflow each frame.
+    if (!iconMode && bodyRef.current && element && !panel.isCollapsed()) {
+      bodyRef.current.style.width = `${element.getBoundingClientRect().width}px`
+    }
+
     // The transition has to go on this element specifically: it's the node the
     // library sets flex-grow on. className can't reach it — the library forwards
     // that to an inner child — and the style prop is documented as locked. So
     // it's applied imperatively, then removed so dragging stays 1:1 with the
     // cursor instead of lagging a transition behind it.
     if (element) {
-      element.style.transition = `flex-grow ${ANIMATION_MS}ms ${SPRING}`
-      if (animationTimer.current) clearTimeout(animationTimer.current)
-      animationTimer.current = setTimeout(() => {
-        if (elementRef.current) elementRef.current.style.transition = ""
-      }, ANIMATION_MS)
+      element.style.transition = `flex-grow ${ANIMATION_MS}ms ${EASING}`
     }
+    if (animationTimer.current) clearTimeout(animationTimer.current)
+    animationTimer.current = setTimeout(() => {
+      isAnimating.current = false
+
+      const current = elementRef.current
+      if (!current) return
+      current.style.transition = ""
+
+      // The animation is over, so the measured width is trustworthy again.
+      // Skipped at 0 (hidden or detached), which would read as "collapsed".
+      const width = current.getBoundingClientRect().width
+      if (width > 0) setIsCollapsed(width <= COLLAPSED_PX + 1)
+      if (width > COLLAPSED_PX + 1 && bodyRef.current) bodyRef.current.style.width = ""
+    }, ANIMATION_MS)
 
     if (panel.isCollapsed()) {
       panel.expand()
@@ -76,6 +120,11 @@ function CollapsiblePanel({
       panel.collapse()
       setIsCollapsed(true)
     }
+  }
+
+  // Only ever opens: a rail icon is not a second collapse button.
+  function expand() {
+    if (panelRef.current?.isCollapsed()) toggle()
   }
 
   React.useEffect(() => {
@@ -92,7 +141,7 @@ function CollapsiblePanel({
     if (!element) return
 
     const observer = new ResizeObserver(([entry]) => {
-      if (!entry) return
+      if (!entry || isAnimating.current) return
       setIsCollapsed(entry.contentRect.width <= COLLAPSED_PX + 1)
     })
 
@@ -131,7 +180,7 @@ function CollapsiblePanel({
       {/* Pinned to the top-right and taken out of the flow, so it never pushes
           the panel's content down. It sits outside the scrolling body, so it
           stays put while content scrolls. right-2 also lands it in the middle
-          of the 44px collapsed rail. Content with right-aligned items on its
+          of the 48px collapsed rail. Content with right-aligned items on its
           first line needs right padding to clear it. */}
       <button
         type="button"
@@ -146,19 +195,26 @@ function CollapsiblePanel({
         />
       </button>
 
-      {/* Faded rather than `hidden`, since display:none can't be transitioned.
-          Kept mounted so panel state (scroll, focus, drafts) survives a
-          collapse; the panel's overflow-hidden clips it while narrow. */}
+      {/* Kept mounted so panel state (scroll, focus, drafts) survives a
+          collapse. data-collapsible mirrors the shadcn sidebar's attribute, so
+          children can use group-data-[collapsible=icon]: variants. */}
       <div
-        aria-hidden={isCollapsed}
+        ref={bodyRef}
+        data-collapsible={isCollapsed ? "icon" : ""}
+        // Only a fully hidden body is aria-hidden/inert; an icon rail stays usable.
+        aria-hidden={!iconMode && isCollapsed}
+        inert={!iconMode && isCollapsed}
         className={cn(
-          "min-h-0 flex-1 overflow-auto transition-opacity",
-          isCollapsed
-            ? "pointer-events-none opacity-0 duration-150"
-            : "opacity-100 duration-300"
+          "group min-h-0 min-w-0 flex-1",
+          iconMode
+            ? "overflow-y-auto overflow-x-hidden"
+            : "overflow-auto transition-opacity duration-200 ease-linear",
+          isCollapsed && (iconMode ? "overflow-hidden" : "pointer-events-none opacity-0")
         )}
       >
-        {children}
+        <CollapsiblePanelContext.Provider value={{ isCollapsed, expand }}>
+          {children}
+        </CollapsiblePanelContext.Provider>
       </div>
     </ResizablePanel>
   )
@@ -193,4 +249,4 @@ function CollapsiblePanels({
   )
 }
 
-export { CollapsiblePanels, CollapsiblePanel }
+export { CollapsiblePanels, CollapsiblePanel, useCollapsiblePanel }

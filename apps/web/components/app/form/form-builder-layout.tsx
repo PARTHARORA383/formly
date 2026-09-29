@@ -20,7 +20,13 @@ export function FormBuilderLayout() {
 
   return (
     <CollapsiblePanels className="h-full">
-      <CollapsiblePanel defaultSize={20} minSize={15} collapsible side="left">
+      <CollapsiblePanel
+        defaultSize={20}
+        minSize={15}
+        collapsible
+        side="left"
+        iconMode
+      >
         <ElementsPanel />
       </CollapsiblePanel>
 
