@@ -21,7 +21,7 @@ function ElementButton({ type }: { type: FieldType }) {
   const { label, icon } = FIELD_TYPES[type]
   const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
     id: `element-${type}`,
-    data: { type },
+    data: { kind: "element", type },
   })
 
   return (

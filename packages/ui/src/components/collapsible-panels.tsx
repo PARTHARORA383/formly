@@ -205,7 +205,7 @@ function CollapsiblePanel({
         aria-hidden={!iconMode && isCollapsed}
         inert={!iconMode && isCollapsed}
         className={cn(
-          "group min-h-0 min-w-0 flex-1",
+          "scrollbar-sleek group min-h-0 min-w-0 flex-1",
           iconMode
             ? "overflow-y-auto overflow-x-hidden"
             : "overflow-auto transition-opacity duration-200 ease-linear",

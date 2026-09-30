@@ -2,31 +2,43 @@
 
 import * as React from "react"
 import { useDroppable } from "@dnd-kit/core"
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  type SortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { Note01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@workspace/ui/lib/utils"
 import {
+  CANVAS_AREA_ATTRIBUTE,
   CANVAS_DROPPABLE_ID,
   CANVAS_ITEM_ATTRIBUTE,
-  useDropIndex,
+  useFormDnd,
 } from "@/components/app/form/form-dnd"
+import { CanvasCard } from "@/components/app/form/canvas-card"
 import { EmptyState } from "@/components/common/empty-state"
-import { FieldRenderer } from "@/components/app/form/field"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
 
-const noop = () => {}
-
 function CanvasItem({
   field,
   selected,
+  dimmed,
   onSelect,
 }: {
   field: FormField
   selected: boolean
+  dimmed: boolean
   onSelect: () => void
 }) {
-  const ref = React.useRef<HTMLDivElement>(null)
+  const ref = React.useRef<HTMLDivElement | null>(null)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: fieldKey(field),
+    data: { kind: "field" },
+  })
 
   // A new question is appended below the button, possibly out of view.
   React.useEffect(() => {
@@ -35,10 +47,13 @@ function CanvasItem({
 
   return (
     <div
-      ref={ref}
+      ref={(node) => {
+        ref.current = node
+        setNodeRef(node)
+      }}
       {...{ [CANVAS_ITEM_ATTRIBUTE]: "" }}
-      role="button"
-      tabIndex={0}
+      {...attributes}
+      {...listeners}
       aria-pressed={selected}
       onClick={onSelect}
       onKeyDown={(event) => {
@@ -47,16 +62,22 @@ function CanvasItem({
           onSelect()
         }
       }}
+      // The transform and transition are what slide the other questions out of
+      // the way while one is being carried.
+      style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "animate-in cursor-pointer rounded-lg border p-4 duration-300 fade-in slide-in-from-top-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        selected ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+        "animate-in cursor-pointer touch-none rounded-lg border border-transparent duration-300 fade-in outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        // The slot the carried question will land in: a muted, fixed box.
+        isDragging && "border-border border-dashed bg-muted/60"
       )}
     >
-      {/* inert keeps the preview input out of the tab order and stops it from
-          capturing clicks, so the whole card acts as one selection target. */}
-      <div inert>
-        <FieldRenderer field={field} value={undefined} onChange={noop} />
-      </div>
+      {/* Kept in the layout, just hidden, so the slot keeps the card's size. */}
+      <CanvasCard
+        field={field}
+        selected={selected}
+        dimmed={dimmed}
+        className={cn(isDragging && "invisible")}
+      />
     </div>
   )
 }
@@ -68,7 +89,7 @@ function DropIndicator({ active }: { active: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "-my-1.5 h-0.5 rounded-full bg-primary transition-[opacity,margin] duration-150",
+        "-my-1 h-0.5 rounded-full bg-primary transition-[opacity,margin] duration-150",
         active ? "opacity-100" : "opacity-0"
       )}
     />
@@ -79,8 +100,13 @@ export function FormCanvas() {
   const fields = useFields((state) => state.fields)
   const selectedKey = useFields((state) => state.selectedKey)
   const selectField = useFields((state) => state.selectField)
-  const dropIndex = useDropIndex()
-  const { setNodeRef, isOver } = useDroppable({ id: CANVAS_DROPPABLE_ID })
+  const { dropIndex, activeKind } = useFormDnd()
+  const { setNodeRef } = useDroppable({ id: CANVAS_DROPPABLE_ID })
+
+  // Existing questions only shuffle when one of them is being carried. A new
+  // element dragged in shows the drop line instead.
+  const strategy: SortingStrategy = (args) =>
+    activeKind === "element" ? null : verticalListSortingStrategy(args)
 
   return (
     <div className="flex h-full flex-col">
@@ -93,9 +119,10 @@ export function FormCanvas() {
 
       <div
         ref={setNodeRef}
+        {...{ [CANVAS_AREA_ATTRIBUTE]: "" }}
         className={cn(
-          "min-h-0 flex-1 overflow-auto p-4 transition-colors duration-200",
-          isOver && "bg-primary/5"
+          "scrollbar-sleek min-h-0 flex-1 overflow-auto p-4 transition-colors duration-200",
+          dropIndex !== null && "bg-primary/5"
         )}
       >
         {fields.length === 0 ? (
@@ -105,7 +132,8 @@ export function FormCanvas() {
             description="Add your first question to get started."
           />
         ) : (
-          <div className="mx-auto flex max-w-xl flex-col gap-3">
+          <SortableContext items={fields.map(fieldKey)} strategy={strategy}>
+          <div className="mx-auto flex max-w-xl flex-col gap-1.5">
             {fields.map((field, index) => {
               const key = fieldKey(field)
 
@@ -115,6 +143,7 @@ export function FormCanvas() {
                   <CanvasItem
                     field={field}
                     selected={key === selectedKey}
+                    dimmed={selectedKey !== null && key !== selectedKey}
                     onSelect={() => selectField(key)}
                   />
                 </React.Fragment>
@@ -122,6 +151,7 @@ export function FormCanvas() {
             })}
             <DropIndicator active={dropIndex === fields.length} />
           </div>
+          </SortableContext>
         )}
       </div>
     </div>

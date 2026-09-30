@@ -13,6 +13,7 @@ type FieldsStore = {
     selectedKey: string | null
     addField: (type?: FieldType, index?: number) => void
     removeField: (key: string) => void
+    moveField: (fromKey: string, toKey: string) => void
     selectField: (key: string) => void
     updateField: (key: string, patch: Partial<FormField>) => void
     changeFieldType: (key: string, type: FieldType) => void
@@ -46,6 +47,20 @@ const useFields = create<FieldsStore>((set) => ({
                 fields: fields.map((item, position) => ({ ...item, position })),
                 selectedKey: fieldKey(field),
             }
+        }),
+
+    // Moves a question to where another one currently sits, pushing the rest along.
+    moveField: (fromKey, toKey) =>
+        set((state) => {
+            const from = state.fields.findIndex((field) => fieldKey(field) === fromKey)
+            const to = state.fields.findIndex((field) => fieldKey(field) === toKey)
+            if (from === -1 || to === -1 || from === to) return state
+
+            const fields = [...state.fields]
+            const [moved] = fields.splice(from, 1)
+            fields.splice(to, 0, moved!)
+
+            return { fields: fields.map((field, position) => ({ ...field, position })) }
         }),
 
     removeField: (key) =>
