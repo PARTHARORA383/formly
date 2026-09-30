@@ -9,7 +9,7 @@ import {
   type SortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Note01Icon } from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Note01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@workspace/ui/lib/utils"
 import {
   CANVAS_AREA_ATTRIBUTE,
@@ -18,6 +18,7 @@ import {
   useFormDnd,
 } from "@/components/app/form/form-dnd"
 import { CanvasCard } from "@/components/app/form/canvas-card"
+import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
@@ -35,6 +36,7 @@ function CanvasItem({
   onSelect: () => void
 }) {
   const ref = React.useRef<HTMLDivElement | null>(null)
+  const removeField = useFields((state) => state.removeField)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: fieldKey(field),
     data: { kind: "field" },
@@ -57,6 +59,8 @@ function CanvasItem({
       aria-pressed={selected}
       onClick={onSelect}
       onKeyDown={(event) => {
+        // Keys pressed on the remove button are its own, not a selection.
+        if (event.target !== event.currentTarget) return
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault()
           onSelect()
@@ -66,7 +70,7 @@ function CanvasItem({
       // the way while one is being carried.
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "animate-in cursor-pointer touch-none rounded-lg border border-transparent duration-300 fade-in outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group/item relative animate-in cursor-pointer touch-none rounded-lg border border-transparent duration-300 fade-in outline-none focus-visible:ring-2 focus-visible:ring-ring",
         // The slot the carried question will land in: a muted, fixed box.
         isDragging && "border-border border-dashed bg-muted/60"
       )}
@@ -77,6 +81,25 @@ function CanvasItem({
         selected={selected}
         dimmed={dimmed}
         className={cn(isDragging && "invisible")}
+      />
+
+      {/* Stops the press and the click here, so removing a question neither
+          starts a drag nor selects the card on the way out. */}
+      <IconTooltip
+        icon={Cancel01Icon}
+        tooltip="Remove question"
+        side="top"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation()
+          removeField(fieldKey(field))
+        }}
+        className={cn(
+          "absolute top-1.5 right-1.5 size-6 opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 hover:bg-muted",
+          selected && "opacity-100",
+          isDragging && "hidden"
+        )}
+        iconClassName="size-3.5"
       />
     </div>
   )
