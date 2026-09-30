@@ -96,6 +96,10 @@ export function FieldInput({
             return (
                 <Textarea
                     id={id}
+                    // One input tall to start; field-sizing-content grows it as
+                    // text is added, so the drag handle isn't needed.
+                    rows={1}
+                    className="min-h-8 resize-none py-[5px]"
                     placeholder={field.placeholder ?? 'Enter your text here'}
                     required={field.required}
                     aria-invalid={!!error}
