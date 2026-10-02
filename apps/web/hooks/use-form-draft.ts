@@ -7,7 +7,7 @@ import type { Fields } from "@/types/field"
 
 const SAVE_DELAY_MS = 300
 
-const draftKey = (publicId: string) => `formly:draft:${publicId}`
+export const draftKey = (publicId: string) => `formly:draft:${publicId}`
 
 // A clear is deferred by one tick. React's dev-mode strict check unmounts and
 // remounts every effect straight away, which would otherwise wipe a draft that
@@ -28,7 +28,8 @@ export function useFormDraft(publicId: string) {
 
     const key = draftKey(publicId)
     const draft = getStored<Fields>(key)
-    if (Array.isArray(draft) && draft.length > 0) {
+    // An empty list counts too: it means every question was removed.
+    if (Array.isArray(draft)) {
       useFields.getState().setFields(draft)
     }
 
