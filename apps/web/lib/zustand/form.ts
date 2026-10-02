@@ -1,11 +1,14 @@
 import { create } from 'zustand'
 import type { Fields, FormField } from '@/types/field'
+import type { SavedField } from '@/types/form'
 import { FIELD_TYPES, defaultOptions, type FieldType } from '@/utils/constants'
 
-// Saved fields have an id, unsaved ones only a tempId. One string covers both,
-// so selection works before and after the first save and survives reordering.
+// Fields created in the builder keep their tempId after the first save, and
+// the key prefers it, so saving (which only adds the real id) never changes a
+// field's key. That keeps the selection and React's identity for the card.
+// Fields that arrived from the server have no tempId and fall back to the id.
 export function fieldKey(field: FormField) {
-    return String(field.id ?? field.tempId)
+    return field.tempId ?? String(field.id)
 }
 
 type FieldsStore = {
@@ -13,6 +16,8 @@ type FieldsStore = {
     selectedKey: string | null
     addField: (type?: FieldType, index?: number) => void
     removeField: (key: string) => void
+    setFields: (fields: Fields) => void
+    applySaved: (saved: SavedField[]) => void
     moveField: (fromKey: string, toKey: string) => void
     selectField: (key: string) => void
     updateField: (key: string, patch: Partial<FormField>) => void
@@ -62,6 +67,33 @@ const useFields = create<FieldsStore>((set) => ({
 
             return { fields: fields.map((field, position) => ({ ...field, position })) }
         }),
+
+    // Replaces the whole list, e.g. when restoring a draft.
+    setFields: (fields) => set({ fields, selectedKey: null }),
+
+    // Copies the ids the server assigned onto the matching local fields, and
+    // nothing else. The server's copy is a snapshot from when the request was
+    // sent, so overwriting content would throw away anything typed while the
+    // save was in flight. Without the ids, the next save would insert every
+    // field again instead of updating it.
+    applySaved: (saved) =>
+        set((state) => ({
+            fields: state.fields.map((field) => {
+                const match = saved.find((item) =>
+                    field.tempId ? item.tempId === field.tempId : item.id === field.id
+                )
+                if (!match) return field
+
+                const options = field.options?.map((option, index) => {
+                    const savedOption = match.options[index]
+                    return savedOption && savedOption.label === option.label
+                        ? { ...option, id: savedOption.id }
+                        : option
+                })
+
+                return { ...field, id: match.id, ...(options ? { options } : {}) }
+            }),
+        })),
 
     removeField: (key) =>
         set((state) => ({
