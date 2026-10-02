@@ -20,6 +20,7 @@ import {
 import { CanvasCard } from "@/components/app/form/canvas-card"
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
+import { SaveDraftButton } from "@/components/app/form/save-draft-button"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
@@ -119,7 +120,7 @@ function DropIndicator({ active }: { active: boolean }) {
   )
 }
 
-export function FormCanvas() {
+export function FormCanvas({ publicId }: { publicId: string }) {
   const fields = useFields((state) => state.fields)
   const selectedKey = useFields((state) => state.selectedKey)
   const selectField = useFields((state) => state.selectField)
@@ -133,11 +134,14 @@ export function FormCanvas() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center justify-between border-b py-2 pr-12 pl-4">
+      <div className="flex shrink-0 items-center justify-between border-b px-4 py-2">
         <span className="text-sm text-muted-foreground">
           {fields.length} {fields.length === 1 ? "question" : "questions"}
         </span>
-        <AddQuestionButton />
+        <div className="flex items-center gap-2">
+          <SaveDraftButton publicId={publicId} />
+          <AddQuestionButton />
+        </div>
       </div>
 
       <div

@@ -9,8 +9,8 @@ export default async function FormBuilderPage({
   const { id } = await params
 
   return (
-    <div className="h-full" data-form-id={id}>
-      <FormBuilderLayout />
+    <div className="h-full">
+      <FormBuilderLayout publicId={id} />
     </div>
   )
 }
