@@ -6,7 +6,7 @@ import {
   type CreateFormInput,
   type UpdateFormInput,
 } from "@/lib/zod/form"
-import type { Form, SavedForm } from "@/types/form"
+import type { Form, FormWithFields, SavedForm } from "@/types/form"
 
 const formKeys = {
   all: ["forms"] as const,
@@ -20,6 +20,18 @@ function useForms() {
       const res = await FormApi.list()
       return res.data.data as Form[]
     },
+  })
+}
+
+function useForm(publicId: string) {
+  return useQuery({
+    queryKey: formKeys.detail(publicId),
+    queryFn: async () => {
+      const res = await FormApi.get(publicId)
+      return res.data.data as FormWithFields
+    },
+    // A missing form is a 404, which retrying will not fix.
+    retry: false,
   })
 }
 
@@ -57,4 +69,4 @@ function useUpdateForm(publicId: string) {
   })
 }
 
-export { formKeys, useForms, useCreateForm, useUpdateForm }
+export { formKeys, useForms, useForm, useCreateForm, useUpdateForm }

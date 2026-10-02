@@ -1,3 +1,5 @@
+import type { FormField } from "@/types/field"
+
 /** A form as the API returns it. Mirrors the forms table. */
 type Form = {
   id: number
@@ -8,6 +10,9 @@ type Form = {
   createdAt: string
   updatedAt: string
 }
+
+/** What GET /form/:publicId returns: the form plus its live fields, in order. */
+type FormWithFields = Form & { fields: FormField[] }
 
 /** What PUT /form/:publicId returns: the form plus its fields with real ids. */
 type SavedForm = Form & { fields: SavedField[] }
@@ -20,4 +25,4 @@ type SavedField = {
 
 type FormStatus = "draft" | "published" | "closed"
 
-export type { Form, FormStatus, SavedForm, SavedField }
+export type { Form, FormStatus, FormWithFields, SavedForm, SavedField }

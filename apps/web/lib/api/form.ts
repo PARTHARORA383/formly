@@ -10,6 +10,10 @@ class FormApi {
     return api.put(`/form/${publicId}`, input)
   }
 
+  static get(publicId: string) {
+    return api.get(`/form/${publicId}`)
+  }
+
   static list() {
     return api.get("/form")
   }
