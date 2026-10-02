@@ -11,6 +11,7 @@ const router = Router()
 
 router.post('/create', authenticate, validateBody(createFormSchema), FormController.createForm)
 router.get('/', authenticate, FormController.getForms)
+router.get('/:publicId', authenticate, FormController.getForm)
 router.put('/:publicId', authenticate, validateBody(updateFormSchema), FormController.updateForm)
 
 

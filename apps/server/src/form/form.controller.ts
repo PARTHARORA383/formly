@@ -28,6 +28,15 @@ const FormController = {
             next(err instanceof ApiError ? err : ApiError.internal())
         }
     },
+    getForm: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const publicId = String(req.params.publicId)
+            const form = await FormService.getForm(Number(req.userId), publicId)
+            ApiResponse.success(res, form, 'Form fetched successfully')
+        } catch (err) {
+            next(err instanceof ApiError ? err : ApiError.internal())
+        }
+    },
     updateForm: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const publicId = String(req.params.publicId)

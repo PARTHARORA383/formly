@@ -1,7 +1,7 @@
 import type { CreateFormInput, UpdateFormInput } from "./form.types.js";
 import { db } from "../db/index.js";
 import { fieldOptionsTable, formFieldsTable, formsTable } from "../db/schema.js";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 import { generatePublicId } from "../common/utils/id.js";
 import ApiError from "../common/utils/error.js";
 
@@ -26,6 +26,53 @@ const FormService = {
             .from(formsTable)
             .where(eq(formsTable.ownerId, ownerId))
             .orderBy(desc(formsTable.updatedAt))
+    }
+    ,
+    // One form with its live (not archived) fields and options, in the order
+    // the builder saved them. Scoped to the owner, so another user's publicId
+    // reads as not found rather than forbidden.
+    getForm: async (ownerId: number, publicId: string) => {
+        const [form] = await db
+            .select()
+            .from(formsTable)
+            .where(and(eq(formsTable.publicId, publicId), eq(formsTable.ownerId, ownerId)))
+
+        if (!form) {
+            throw ApiError.notFound('Form not found')
+        }
+
+        const fields = await db
+            .select()
+            .from(formFieldsTable)
+            .where(and(eq(formFieldsTable.formId, form.id), isNull(formFieldsTable.archivedAt)))
+            .orderBy(asc(formFieldsTable.position))
+
+        const options = fields.length === 0
+            ? []
+            : await db
+                .select()
+                .from(fieldOptionsTable)
+                .where(and(
+                    inArray(fieldOptionsTable.fieldId, fields.map((f) => f.id)),
+                    isNull(fieldOptionsTable.archivedAt),
+                ))
+                .orderBy(asc(fieldOptionsTable.position))
+
+        const optionsByField = new Map<number, { id: number; label: string }[]>()
+        for (const option of options) {
+            const list = optionsByField.get(option.fieldId) ?? []
+            list.push({ id: option.id, label: option.label })
+            optionsByField.set(option.fieldId, list)
+        }
+
+        return {
+            ...form,
+            fields: fields.map(({ archivedAt, formId, ...field }) => ({
+                ...field,
+                // Only choice questions have options, so the key is left off the rest.
+                ...(optionsByField.has(field.id) ? { options: optionsByField.get(field.id) } : {}),
+            })),
+        }
     }
     ,
     updateForm: async (ownerId: number, publicId: string, input: UpdateFormInput) => {
