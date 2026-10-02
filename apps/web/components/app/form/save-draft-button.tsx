@@ -12,17 +12,18 @@ export function SaveDraftButton({ publicId }: { publicId: string }) {
   const { mutate, isPending } = useUpdateForm(publicId)
   const applySaved = useFields((state) => state.applySaved)
 
-  // The update endpoint needs the title, which the builder does not edit, so it
-  // comes from the loaded form.
+  // Only used to hold the button back until the form has loaded, so a save
+  // can't send the empty title the store has before then.
   function save() {
     if (!form) return
 
-    const fields = useFields.getState().fields
+    const { title, description, fields } = useFields.getState()
 
     mutate(
       {
-        title: form.title,
-        description: form.description,
+        title: title.trim(),
+        // Empty means no description, which the API stores as null.
+        description: description.trim() || null,
         // position follows the array order, so the server stores what is on screen.
         fields: fields.map((field, position) => ({ ...field, position })),
       },

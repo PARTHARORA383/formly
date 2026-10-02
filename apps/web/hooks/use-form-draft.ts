@@ -5,6 +5,17 @@ import useFields from "@/lib/zustand/form"
 import { getStored, removeStored, setStored } from "@/utils/storage"
 import type { Fields } from "@/types/field"
 
+export type Draft = { title: string; description: string; fields: Fields }
+
+// Drafts saved before the title existed are a bare array of questions.
+export function readDraft(publicId: string): Draft | null {
+  const stored = getStored<Draft | Fields>(draftKey(publicId))
+
+  if (Array.isArray(stored)) return { title: "", description: "", fields: stored }
+  if (stored && Array.isArray(stored.fields)) return stored
+  return null
+}
+
 const SAVE_DELAY_MS = 300
 
 export const draftKey = (publicId: string) => `formly:draft:${publicId}`
@@ -27,18 +38,28 @@ export function useFormDraft(publicId: string) {
     }
 
     const key = draftKey(publicId)
-    const draft = getStored<Fields>(key)
-    // An empty list counts too: it means every question was removed.
-    if (Array.isArray(draft)) {
-      useFields.getState().setFields(draft)
+    // A draft with no questions still counts: it means they were all removed.
+    const draft = readDraft(publicId)
+    if (draft) {
+      const store = useFields.getState()
+      store.loadForm(draft)
     }
 
     let timer: ReturnType<typeof setTimeout> | null = null
-    const write = () => setStored(key, useFields.getState().fields)
+    const write = () => {
+      const { title, description, fields } = useFields.getState()
+      setStored(key, { title, description, fields } satisfies Draft)
+    }
 
     // Debounced, so typing in a label doesn't write on every keystroke.
     const unsubscribe = useFields.subscribe((state, previous) => {
-      if (state.fields === previous.fields) return
+      if (
+        state.fields === previous.fields &&
+        state.title === previous.title &&
+        state.description === previous.description
+      ) {
+        return
+      }
       if (timer) clearTimeout(timer)
       timer = setTimeout(write, SAVE_DELAY_MS)
     })

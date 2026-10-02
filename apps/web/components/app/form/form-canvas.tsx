@@ -20,6 +20,7 @@ import {
 import { CanvasCard } from "@/components/app/form/canvas-card"
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
+import { FormDetails } from "@/components/app/form/form-details"
 import { SaveDraftButton } from "@/components/app/form/save-draft-button"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
@@ -113,7 +114,7 @@ function DropIndicator({ active }: { active: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "-my-[7px] h-0.5 rounded-full bg-primary transition-[opacity,margin] duration-150",
+        "-my-[6.5px] h-px rounded-full bg-primary transition-[opacity,margin] duration-150",
         active ? "opacity-100" : "opacity-0"
       )}
     />
@@ -135,9 +136,7 @@ export function FormCanvas({ publicId }: { publicId: string }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex shrink-0 items-center justify-between border-b px-4 py-2">
-        <span className="text-sm text-muted-foreground">
-          {fields.length} {fields.length === 1 ? "question" : "questions"}
-        </span>
+        <FormDetails />
         <div className="flex items-center gap-2">
           <SaveDraftButton publicId={publicId} />
           <AddQuestionButton />

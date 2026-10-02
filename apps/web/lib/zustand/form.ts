@@ -12,11 +12,16 @@ export function fieldKey(field: FormField) {
 }
 
 type FieldsStore = {
+    title: string
+    description: string
     fields: Fields
     selectedKey: string | null
     addField: (type?: FieldType, index?: number) => void
     removeField: (key: string) => void
     setFields: (fields: Fields) => void
+    setTitle: (title: string) => void
+    setDescription: (description: string) => void
+    loadForm: (form: { title: string; description: string; fields: Fields }) => void
     applySaved: (saved: SavedField[]) => void
     moveField: (fromKey: string, toKey: string) => void
     selectField: (key: string) => void
@@ -26,6 +31,8 @@ type FieldsStore = {
 }
 
 const useFields = create<FieldsStore>((set) => ({
+    title: "",
+    description: "",
     fields: [],
     selectedKey: null,
 
@@ -36,7 +43,7 @@ const useFields = create<FieldsStore>((set) => ({
             const field: FormField = {
                 tempId: `tmp_${crypto.randomUUID()}`,
                 type,
-                label: "Untitled question",
+                label: "",
                 required: false,
                 position: at,
                 config: {},
@@ -68,8 +75,16 @@ const useFields = create<FieldsStore>((set) => ({
             return { fields: fields.map((field, position) => ({ ...field, position })) }
         }),
 
-    // Replaces the whole list, e.g. when restoring a draft.
+    // Replaces the whole list, e.g. when restoring an older draft.
     setFields: (fields) => set({ fields, selectedKey: null }),
+
+    setTitle: (title) => set({ title }),
+    setDescription: (description) => set({ description }),
+
+    // Sets everything in one update, so the draft is written once with the
+    // title and the questions together.
+    loadForm: ({ title, description, fields }) =>
+        set({ title, description, fields, selectedKey: null }),
 
     // Copies the ids the server assigned onto the matching local fields, and
     // nothing else. The server's copy is a snapshot from when the request was
@@ -132,7 +147,7 @@ const useFields = create<FieldsStore>((set) => ({
 
     // The store is module-level, so it outlives the page. Without this, opening
     // a second form would show the first form's questions.
-    reset: () => set({ fields: [], selectedKey: null }),
+    reset: () => set({ title: "", description: "", fields: [], selectedKey: null }),
 }))
 
 // Selecting the object rather than the whole store means a component only
