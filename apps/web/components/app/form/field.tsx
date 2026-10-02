@@ -9,6 +9,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import type { FormField } from "@/types/field"
 import { FieldInput } from "@/components/app/form/field-input"
 import type { AnswerValue } from "@/types/answer"
+import { LABEL_PLACEHOLDER } from "@/utils/constants"
 
 
 
@@ -27,7 +28,9 @@ export function FieldRenderer({ field, value, onChange, error, className }: Fiel
     return (
         <Field data-invalid={error ? true : undefined} className={cn("min-w-0", className)}>
             <FieldLabel htmlFor={id} className="[overflow-wrap:anywhere]">
-                {field.label}
+                {field.label || (
+                    <span className="text-muted-foreground">{LABEL_PLACEHOLDER}</span>
+                )}
                 {field.required && <span aria-hidden="true"> *</span>}
             </FieldLabel>
 

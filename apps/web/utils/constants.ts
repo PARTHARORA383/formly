@@ -25,6 +25,9 @@ type FieldTypeDefinition = {
 /** Shown in any input whose question has no placeholder of its own. */
 const DEFAULT_PLACEHOLDER = "Type your answer here..."
 
+/** Shown where a question has no label yet. A hint, never a saved value. */
+const LABEL_PLACEHOLDER = "Type your question here"
+
 // One entry per field type. The settings panel and the elements list both read
 // this, so adding a type means adding a line here.
 const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
@@ -55,5 +58,5 @@ function defaultOptions(): FieldOption[] {
   return [{ label: "Option 1" }, { label: "Option 2" }]
 }
 
-export { FIELD_TYPES, FIELD_TYPE_LIST, ELEMENT_GROUPS, DEFAULT_PLACEHOLDER, defaultOptions }
+export { FIELD_TYPES, FIELD_TYPE_LIST, ELEMENT_GROUPS, DEFAULT_PLACEHOLDER, LABEL_PLACEHOLDER, defaultOptions }
 export type { FieldType }
