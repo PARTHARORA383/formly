@@ -112,7 +112,7 @@ function DropIndicator({ active }: { active: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "-my-1 h-0.5 rounded-full bg-primary transition-[opacity,margin] duration-150",
+        "-my-[7px] h-0.5 rounded-full bg-primary transition-[opacity,margin] duration-150",
         active ? "opacity-100" : "opacity-0"
       )}
     />
@@ -156,7 +156,7 @@ export function FormCanvas() {
           />
         ) : (
           <SortableContext items={fields.map(fieldKey)} strategy={strategy}>
-          <div className="mx-auto flex max-w-xl flex-col gap-1.5">
+          <div className="mx-auto flex max-w-xl flex-col gap-3">
             {fields.map((field, index) => {
               const key = fieldKey(field)
 

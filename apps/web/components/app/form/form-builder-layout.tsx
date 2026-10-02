@@ -32,11 +32,11 @@ export function FormBuilderLayout() {
         <ElementsPanel />
       </CollapsiblePanel>
 
-      <CollapsiblePanel defaultSize={55} minSize={30} collapsible side="left">
+      <CollapsiblePanel defaultSize={55} minSize={30}>
         <FormCanvas />
       </CollapsiblePanel>
 
-      <CollapsiblePanel defaultSize={25} minSize={20} collapsible side="right">
+      <CollapsiblePanel defaultSize={25} minSize={20} collapsible side="right" iconMode>
         <FieldSettings />
       </CollapsiblePanel>
     </CollapsiblePanels>

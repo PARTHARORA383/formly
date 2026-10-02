@@ -241,7 +241,9 @@ function CollapsiblePanels({
     <ResizablePanelGroup orientation={orientation} className={className}>
       {panels.map((panel, index) => (
         <React.Fragment key={index}>
-          {index > 0 && <ResizableHandle withHandle />}
+          {/* Double-clicking a handle would reset its panel to the default size,
+              i.e. pop a collapsed panel open and skip the collapse state. */}
+          {index > 0 && <ResizableHandle withHandle disableDoubleClick />}
           {panel}
         </React.Fragment>
       ))}

@@ -24,8 +24,8 @@ export function CanvasCard({
         "rounded-lg border py-2.5 pr-9 pl-3 transition-[opacity,background-color,border-color] duration-200",
         // Every card sits on a muted fill with a hairline border; the selected
         // one is a step stronger on both while the rest fade back.
-        selected ? "border-border/60 bg-muted" : "border-border/30 bg-muted/40 hover:bg-muted/60",
-        dimmed && "opacity-40 hover:opacity-70",
+        selected ? "border-border/60 bg-muted" : "border-border/30 bg-muted/60",
+        dimmed && "opacity-65 hover:opacity-85",
         className
       )}
     >

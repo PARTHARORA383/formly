@@ -9,6 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { DEFAULT_PLACEHOLDER } from "@/utils/constants"
 import type { FieldOption, FormField } from "@/types/field"
 import type { AnswerValue } from "@/types/answer"
 
@@ -46,7 +47,7 @@ export function FieldInput({
                 <Input
                     id={id}
                     type="text"
-                    placeholder={field.placeholder ?? 'Enter your text here'}
+                    placeholder={field.placeholder || DEFAULT_PLACEHOLDER}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -59,7 +60,7 @@ export function FieldInput({
                 <Input
                     id={id}
                     type="email"
-                    placeholder={field.placeholder ?? 'Enter your email here'}
+                    placeholder={field.placeholder || DEFAULT_PLACEHOLDER}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -72,7 +73,7 @@ export function FieldInput({
                 <Input
                     id={id}
                     type="number"
-                    placeholder={field.placeholder ?? 'Enter a number'}
+                    placeholder={field.placeholder || DEFAULT_PLACEHOLDER}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -100,7 +101,7 @@ export function FieldInput({
                     // text is added, so the drag handle isn't needed.
                     rows={1}
                     className="min-h-8 resize-none py-[5px]"
-                    placeholder={field.placeholder ?? 'Enter your text here'}
+                    placeholder={field.placeholder || DEFAULT_PLACEHOLDER}
                     required={field.required}
                     aria-invalid={!!error}
                     value={(value as string) ?? ""}
@@ -116,7 +117,7 @@ export function FieldInput({
                     onValueChange={(next) => onChange(next ?? undefined)}
                 >
                     <SelectTrigger id={id} aria-invalid={!!error}>
-                        <SelectValue placeholder={field.placeholder ?? "Select an option"} />
+                        <SelectValue placeholder={field.placeholder || DEFAULT_PLACEHOLDER} />
                     </SelectTrigger>
                     <SelectContent>
                         {options.map((option, index) => (
