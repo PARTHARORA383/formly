@@ -4,18 +4,16 @@ import { toast } from "sonner"
 import { ZodError } from "zod"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@/components/kibo-ui/spinner"
-import { useForms, useUpdateForm } from "@/lib/query/form"
+import { useForm, useUpdateForm } from "@/lib/query/form"
 import useFields from "@/lib/zustand/form"
 
 export function SaveDraftButton({ publicId }: { publicId: string }) {
-  const { data: forms } = useForms()
+  const { data: form } = useForm(publicId)
   const { mutate, isPending } = useUpdateForm(publicId)
   const applySaved = useFields((state) => state.applySaved)
 
-  // The update endpoint needs the title, which the builder doesn't edit, so it
-  // comes from the form's row in the list.
-  const form = forms?.find((item) => item.publicId === publicId)
-
+  // The update endpoint needs the title, which the builder does not edit, so it
+  // comes from the loaded form.
   function save() {
     if (!form) return
 
