@@ -9,6 +9,15 @@ type Form = {
   updatedAt: string
 }
 
+/** What PUT /form/:publicId returns: the form plus its fields with real ids. */
+type SavedForm = Form & { fields: SavedField[] }
+
+type SavedField = {
+  id: number
+  tempId?: string
+  options: { id: number; label: string }[]
+}
+
 type FormStatus = "draft" | "published" | "closed"
 
-export type { Form, FormStatus }
+export type { Form, FormStatus, SavedForm, SavedField }

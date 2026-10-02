@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import FormApi from "@/lib/api/form"
-import { createFormSchema, type CreateFormInput } from "@/lib/zod/form"
-import type { Form } from "@/types/form"
+import {
+  createFormSchema,
+  updateFormSchema,
+  type CreateFormInput,
+  type UpdateFormInput,
+} from "@/lib/zod/form"
+import type { Form, SavedForm } from "@/types/form"
 
 const formKeys = {
   all: ["forms"] as const,
@@ -36,4 +41,20 @@ function useCreateForm() {
   })
 }
 
-export { formKeys, useForms, useCreateForm }
+function useUpdateForm(publicId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (input: UpdateFormInput) => {
+      const payload = updateFormSchema.parse(input)
+      const res = await FormApi.update(publicId, payload)
+      return res.data.data as SavedForm
+    },
+    onSuccess: () => {
+      // updatedAt moved, and the list is ordered by it.
+      queryClient.invalidateQueries({ queryKey: formKeys.all })
+    },
+  })
+}
+
+export { formKeys, useForms, useCreateForm, useUpdateForm }

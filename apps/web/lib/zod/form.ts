@@ -7,7 +7,47 @@ const createFormSchema = z.object({
   description: z.string().optional(),
 })
 
-type CreateFormInput = z.infer<typeof createFormSchema>
+const fieldTypeSchema = z.enum([
+  "short_text",
+  "long_text",
+  "email",
+  "number",
+  "date",
+  "dropdown",
+  "single_select",
+  "multi_select",
+])
 
-export { createFormSchema }
-export type { CreateFormInput }
+// Mirrors the server's updateFormSchema. A present id means "update this row",
+// an absent one means "insert", so ids and tempIds are passed through untouched.
+const updateFormSchema = z.object({
+  title: z.string().min(1, "Title is required").max(255),
+  description: z.string().nullable().optional(),
+  fields: z.array(
+    z.object({
+      id: z.number().int().optional(),
+      tempId: z.string().optional(),
+      type: fieldTypeSchema,
+      label: z.string().min(1, "Every question needs a label").max(500),
+      description: z.string().nullable().optional(),
+      placeholder: z.string().max(255).nullable().optional(),
+      required: z.boolean(),
+      position: z.number().int(),
+      config: z.record(z.string(), z.unknown()),
+      options: z
+        .array(
+          z.object({
+            id: z.number().int().optional(),
+            label: z.string().min(1, "Every option needs a label").max(500),
+          })
+        )
+        .optional(),
+    })
+  ),
+})
+
+type CreateFormInput = z.infer<typeof createFormSchema>
+type UpdateFormInput = z.infer<typeof updateFormSchema>
+
+export { createFormSchema, updateFormSchema }
+export type { CreateFormInput, UpdateFormInput }
