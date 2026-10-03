@@ -45,6 +45,7 @@ const updateFormSchema = z.object({
     title: z.string().min(1, "Title is required").max(255),
     description: z.string().nullable().optional(),
     settings: z.record(z.string(), z.unknown()).optional(),
+    status: z.enum(["draft", "published", "closed"]).optional(),
     fields: z.array(fieldInputSchema),
 })
 

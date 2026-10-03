@@ -5,6 +5,7 @@ import { ZodError } from "zod"
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@/components/kibo-ui/spinner"
 import { useForm, useUpdateForm } from "@/lib/query/form"
+import { buildUpdatePayload } from "@/lib/form-payload"
 import useFields from "@/lib/zustand/form"
 
 export function SaveDraftButton({ publicId }: { publicId: string }) {
@@ -17,18 +18,7 @@ export function SaveDraftButton({ publicId }: { publicId: string }) {
   function save() {
     if (!form) return
 
-    const { title, description, settings, fields } = useFields.getState()
-
-    mutate(
-      {
-        title: title.trim(),
-        // Empty means no description, which the API stores as null.
-        description: description.trim() || null,
-        settings,
-        // position follows the array order, so the server stores what is on screen.
-        fields: fields.map((field, position) => ({ ...field, position })),
-      },
-      {
+    mutate(buildUpdatePayload(), {
         onSuccess: (saved) => {
           applySaved(saved.fields)
           toast.success("Draft saved")
@@ -39,8 +29,7 @@ export function SaveDraftButton({ publicId }: { publicId: string }) {
               ? (error.issues[0]?.message ?? "Some questions are incomplete.")
               : "Could not save the draft. Please try again."
           ),
-      }
-    )
+    })
   }
 
   return (

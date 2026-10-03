@@ -96,7 +96,7 @@ const FormService = {
     ,
     updateForm: async (ownerId: number, publicId: string, input: UpdateFormInput) => {
 
-        const { title, description, settings, fields } = input
+        const { title, description, settings, status, fields } = input
 
         return db.transaction(async (tx) => {
             const [form] = await tx
@@ -114,6 +114,11 @@ const FormService = {
                     title,
                     description,
                     settings,
+                    // undefined leaves the column as it is.
+                    status,
+                    // First publish stamps the date; later saves and unpublishing
+                    // keep it, so it records when the form first went live.
+                    ...(status === 'published' && !form.publishedAt ? { publishedAt: new Date() } : {}),
                     updatedAt: new Date(),
                 })
                 .where(eq(formsTable.id, form.id))
