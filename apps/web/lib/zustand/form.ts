@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Fields, FormField } from '@/types/field'
-import type { SavedField } from '@/types/form'
+import type { FormSettings, SavedField } from '@/types/form'
 import { FIELD_TYPES, defaultOptions, type FieldType } from '@/utils/constants'
 
 // Fields created in the builder keep their tempId after the first save, and
@@ -14,6 +14,7 @@ export function fieldKey(field: FormField) {
 type FieldsStore = {
     title: string
     description: string
+    settings: FormSettings
     fields: Fields
     selectedKey: string | null
     addField: (type?: FieldType, index?: number) => void
@@ -21,7 +22,8 @@ type FieldsStore = {
     setFields: (fields: Fields) => void
     setTitle: (title: string) => void
     setDescription: (description: string) => void
-    loadForm: (form: { title: string; description: string; fields: Fields }) => void
+    setSettings: (patch: Partial<FormSettings>) => void
+    loadForm: (form: { title: string; description: string; settings: FormSettings; fields: Fields }) => void
     applySaved: (saved: SavedField[]) => void
     moveField: (fromKey: string, toKey: string) => void
     selectField: (key: string) => void
@@ -33,6 +35,7 @@ type FieldsStore = {
 const useFields = create<FieldsStore>((set) => ({
     title: "",
     description: "",
+    settings: {},
     fields: [],
     selectedKey: null,
 
@@ -80,11 +83,12 @@ const useFields = create<FieldsStore>((set) => ({
 
     setTitle: (title) => set({ title }),
     setDescription: (description) => set({ description }),
+    setSettings: (patch) => set((state) => ({ settings: { ...state.settings, ...patch } })),
 
     // Sets everything in one update, so the draft is written once with the
     // title and the questions together.
-    loadForm: ({ title, description, fields }) =>
-        set({ title, description, fields, selectedKey: null }),
+    loadForm: ({ title, description, settings, fields }) =>
+        set({ title, description, settings, fields, selectedKey: null }),
 
     // Copies the ids the server assigned onto the matching local fields, and
     // nothing else. The server's copy is a snapshot from when the request was
@@ -147,7 +151,7 @@ const useFields = create<FieldsStore>((set) => ({
 
     // The store is module-level, so it outlives the page. Without this, opening
     // a second form would show the first form's questions.
-    reset: () => set({ title: "", description: "", fields: [], selectedKey: null }),
+    reset: () => set({ title: "", description: "", settings: {}, fields: [], selectedKey: null }),
 }))
 
 // Selecting the object rather than the whole store means a component only

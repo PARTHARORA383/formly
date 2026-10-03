@@ -4,15 +4,17 @@ import { useEffect } from "react"
 import useFields from "@/lib/zustand/form"
 import { getStored, removeStored, setStored } from "@/utils/storage"
 import type { Fields } from "@/types/field"
+import type { FormSettings } from "@/types/form"
 
-export type Draft = { title: string; description: string; fields: Fields }
+export type Draft = { title: string; description: string; settings: FormSettings; fields: Fields }
 
 // Drafts saved before the title existed are a bare array of questions.
 export function readDraft(publicId: string): Draft | null {
   const stored = getStored<Draft | Fields>(draftKey(publicId))
 
-  if (Array.isArray(stored)) return { title: "", description: "", fields: stored }
-  if (stored && Array.isArray(stored.fields)) return stored
+  if (Array.isArray(stored)) return { title: "", description: "", settings: {}, fields: stored }
+  // Drafts from before settings existed have none.
+  if (stored && Array.isArray(stored.fields)) return { ...stored, settings: stored.settings ?? {} }
   return null
 }
 
@@ -47,8 +49,8 @@ export function useFormDraft(publicId: string) {
 
     let timer: ReturnType<typeof setTimeout> | null = null
     const write = () => {
-      const { title, description, fields } = useFields.getState()
-      setStored(key, { title, description, fields } satisfies Draft)
+      const { title, description, settings, fields } = useFields.getState()
+      setStored(key, { title, description, settings, fields } satisfies Draft)
     }
 
     // Debounced, so typing in a label doesn't write on every keystroke.
@@ -56,7 +58,8 @@ export function useFormDraft(publicId: string) {
       if (
         state.fields === previous.fields &&
         state.title === previous.title &&
-        state.description === previous.description
+        state.description === previous.description &&
+        state.settings === previous.settings
       ) {
         return
       }

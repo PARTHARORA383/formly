@@ -18,6 +18,7 @@ export function useLoadForm(publicId: string) {
     useFields.getState().loadForm({
       title: query.data.title,
       description: query.data.description ?? "",
+      settings: query.data.settings ?? {},
       fields: query.data.fields.map((field) => ({
         id: field.id,
         type: field.type,

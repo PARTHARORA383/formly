@@ -14,6 +14,11 @@ class FormApi {
     return api.get(`/form/${publicId}`)
   }
 
+  // Public: no login, so it must not depend on a session.
+  static getPublic(publicId: string) {
+    return api.get(`/public/forms/${publicId}`)
+  }
+
   static list() {
     return api.get("/form")
   }
