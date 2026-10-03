@@ -15,17 +15,9 @@ import { FieldRequiredSwitch } from "@/components/app/form/field-settings/field-
 import { FieldOptionsEditor } from "@/components/app/form/field-settings/field-options-editor"
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
+import { FADE, PANEL } from "@/components/app/form/field-settings/settings-styles"
 import { FIELD_TYPES } from "@/utils/constants"
 import { CursorIcon, GridIcon, LongTextIcon, TextIcon } from "@workspace/ui/icons"
-
-// A minimum width keeps the content from reflowing while the panel narrows;
-// the panel edge clips it instead. Padding tightens so a 32px icon fits the rail.
-const PANEL =
-  "flex min-w-64 flex-col gap-4 px-4 pt-3 pb-4 transition-[padding] duration-200 ease-linear group-data-[collapsible=icon]:px-2"
-
-// Fades out while the panel is collapsed to its icon rail, like the Elements panel.
-const FADE =
-  "transition-opacity duration-200 ease-linear group-data-[collapsible=icon]:opacity-0"
 
 // A control that becomes a single icon when the panel collapses: the control
 // fades out and its icon fades in on the spot where the control was, so the
@@ -57,7 +49,7 @@ function RailSlot({
         side="left"
         onClick={expand}
         className={cn(
-          "pointer-events-none absolute left-0 size-8 rounded-lg text-foreground opacity-0 transition-[opacity,background-color] duration-200 ease-linear hover:bg-muted group-data-[collapsible=icon]:pointer-events-auto group-data-[collapsible=icon]:opacity-100",
+          "pointer-events-none absolute left-0 size-8 rounded-lg opacity-0 transition-[opacity,background-color] duration-200 ease-linear hover:bg-muted group-data-[collapsible=icon]:pointer-events-auto group-data-[collapsible=icon]:opacity-100",
           align === "bottom" ? "bottom-0" : "top-7"
         )}
       />
@@ -77,8 +69,6 @@ export function FieldSettings() {
   if (!selectedField) {
     return (
       <div className={PANEL}>
-        <h3 className={cn("text-sm font-medium whitespace-nowrap", FADE)}>Question settings</h3>
-
         <EmptyState
           icon={CursorIcon}
           title="No question selected"
@@ -94,8 +84,6 @@ export function FieldSettings() {
 
   return (
     <div className={PANEL}>
-      <h3 className={cn("text-sm font-medium whitespace-nowrap", FADE)}>Question settings</h3>
-
       <FieldGroup>
         <RailSlot icon={GridIcon} label="Type">
           <FieldTypeSelect

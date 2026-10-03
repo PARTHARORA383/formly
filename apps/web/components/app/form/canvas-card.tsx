@@ -1,5 +1,7 @@
 import { cn } from "@workspace/ui/lib/utils"
 import { FieldRenderer } from "@/components/app/form/field"
+import { FORM_FONTS, resolveFormFont } from "@/lib/form-fonts"
+import useFields from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
 
 const noop = () => { }
@@ -15,8 +17,13 @@ export function CanvasCard({
   dimmed?: boolean
   className?: string
 }) {
+  // The font picked in the form settings, so the canvas shows the form as it
+  // will look. Read here, not in the list, so the lifted card follows it too.
+  const fontFamily = useFields((state) => state.settings.fontFamily)
+
   return (
     <div
+      style={{ fontFamily: FORM_FONTS[resolveFormFont(fontFamily)].family }}
       className={cn(
         "rounded-lg border py-2.5 pr-9 pl-3 transition-[opacity,background-color,border-color] duration-200",
 

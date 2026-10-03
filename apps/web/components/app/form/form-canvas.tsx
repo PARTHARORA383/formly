@@ -17,12 +17,13 @@ import {
   CANVAS_ITEM_ATTRIBUTE,
   useFormDnd,
 } from "@/components/app/form/form-dnd"
+import { CanvasFormHeader } from "@/components/app/form/canvas-form-header"
 import { CanvasCard } from "@/components/app/form/canvas-card"
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
 import { FormDetails } from "@/components/app/form/form-details"
+import { PreviewButton } from "@/components/app/form/preview-button"
 import { SaveDraftButton } from "@/components/app/form/save-draft-button"
-import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
 import { CloseIcon, NoteIcon } from "@workspace/ui/icons"
@@ -139,8 +140,8 @@ export function FormCanvas({ publicId }: { publicId: string }) {
       <div className="flex shrink-0 items-center justify-between border-b px-4 py-2">
         <FormDetails />
         <div className="flex items-center gap-2">
+          <PreviewButton publicId={publicId} />
           <SaveDraftButton publicId={publicId} />
-          <AddQuestionButton />
         </div>
       </div>
 
@@ -152,6 +153,11 @@ export function FormCanvas({ publicId }: { publicId: string }) {
           dropIndex !== null && "bg-primary/5"
         )}
       >
+        {/* The form's own title and description, above its questions. */}
+        <div className="mx-auto mb-6 max-w-xl">
+          <CanvasFormHeader />
+        </div>
+
         {fields.length === 0 ? (
           <EmptyState
             icon={NoteIcon}
