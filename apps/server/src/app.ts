@@ -6,6 +6,7 @@ import cors from 'cors'
 import { env } from './env.js'
 import cookieParser from 'cookie-parser'
 import formRouter from './form/form.route.js'
+import publicRouter from './public/public.route.js'
 
 export function createApp() {
 
@@ -18,6 +19,7 @@ export function createApp() {
     app.use('/api/v1/auth', authRouter)
     app.use('/api/v1/email', emailRouter)
     app.use('/api/v1/form', formRouter)
+    app.use('/api/v1/public', publicRouter)
 
 
     app.get('/health', (req: Request, res: Response) => {

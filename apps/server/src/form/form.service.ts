@@ -41,36 +41,55 @@ const FormService = {
             throw ApiError.notFound('Form not found')
         }
 
-        const fields = await db
+        return { ...form, fields: await loadLiveFields(form.id) }
+    }
+    ,
+    // What a respondent needs to fill the form in, and nothing else: no owner,
+    // status, settings or timestamps. Looked up by publicId alone, because the
+    // caller may not be logged in.
+    //
+    // Who gets it:
+    //   published form  -> anyone
+    //   anything else   -> only its owner, flagged as a preview
+    //   everyone else   -> 404, the same as a form that does not exist, so a
+    //                      private form cannot be told apart from a missing one
+    getPublicForm: async (publicId: string, viewerId?: number) => {
+        const [form] = await db
             .select()
-            .from(formFieldsTable)
-            .where(and(eq(formFieldsTable.formId, form.id), isNull(formFieldsTable.archivedAt)))
-            .orderBy(asc(formFieldsTable.position))
+            .from(formsTable)
+            .where(eq(formsTable.publicId, publicId))
 
-        const options = fields.length === 0
-            ? []
-            : await db
-                .select()
-                .from(fieldOptionsTable)
-                .where(and(
-                    inArray(fieldOptionsTable.fieldId, fields.map((f) => f.id)),
-                    isNull(fieldOptionsTable.archivedAt),
-                ))
-                .orderBy(asc(fieldOptionsTable.position))
+        const isPublished = form?.status === 'published'
+        const isOwner = form !== undefined && viewerId !== undefined && form.ownerId === viewerId
 
-        const optionsByField = new Map<number, { id: number; label: string }[]>()
-        for (const option of options) {
-            const list = optionsByField.get(option.fieldId) ?? []
-            list.push({ id: option.id, label: option.label })
-            optionsByField.set(option.fieldId, list)
+        if (!form || (!isPublished && !isOwner)) {
+            throw ApiError.notFound('Form not found')
         }
 
+        const fields = await loadLiveFields(form.id)
+
         return {
-            ...form,
-            fields: fields.map(({ archivedAt, formId, ...field }) => ({
-                ...field,
-                // Only choice questions have options, so the key is left off the rest.
-                ...(optionsByField.has(field.id) ? { options: optionsByField.get(field.id) } : {}),
+            publicId: form.publicId,
+            title: form.title,
+            description: form.description,
+            // True when the viewer is the owner looking at a form that is not
+            // published. The page uses it to show a banner and block submitting.
+            preview: !isPublished,
+            // Only the settings a respondent's page uses, never the whole column.
+            settings: {
+                fontFamily: typeof (form.settings as Record<string, unknown>)?.fontFamily === 'string'
+                    ? ((form.settings as Record<string, unknown>).fontFamily as string)
+                    : undefined,
+            },
+            fields: fields.map((field) => ({
+                id: field.id,
+                type: field.type,
+                label: field.label,
+                description: field.description,
+                placeholder: field.placeholder,
+                required: field.required,
+                position: field.position,
+                ...(field.options ? { options: field.options } : {}),
             })),
         }
     }
@@ -174,6 +193,40 @@ const FormService = {
             return { ...updatedForm!, fields: savedFields }
         })
     }
+}
+
+// A form's live fields in saved order, each with its live options. Shared by
+// the owner's builder load and the public page, so both see the same shape.
+async function loadLiveFields(formId: number) {
+    const fields = await db
+        .select()
+        .from(formFieldsTable)
+        .where(and(eq(formFieldsTable.formId, formId), isNull(formFieldsTable.archivedAt)))
+        .orderBy(asc(formFieldsTable.position))
+
+    const options = fields.length === 0
+        ? []
+        : await db
+            .select()
+            .from(fieldOptionsTable)
+            .where(and(
+                inArray(fieldOptionsTable.fieldId, fields.map((f) => f.id)),
+                isNull(fieldOptionsTable.archivedAt),
+            ))
+            .orderBy(asc(fieldOptionsTable.position))
+
+    const optionsByField = new Map<number, { id: number; label: string }[]>()
+    for (const option of options) {
+        const list = optionsByField.get(option.fieldId) ?? []
+        list.push({ id: option.id, label: option.label })
+        optionsByField.set(option.fieldId, list)
+    }
+
+    return fields.map(({ archivedAt, formId: _formId, ...field }) => ({
+        ...field,
+        // Only choice questions have options, so the key is left off the rest.
+        ...(optionsByField.has(field.id) ? { options: optionsByField.get(field.id) } : {}),
+    }))
 }
 
 // Same three rules as fields, one level down.
