@@ -2,14 +2,13 @@
 
 import * as React from "react"
 import { usePanelRef } from "react-resizable-panels"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowLeftDoubleIcon, ArrowRightDoubleIcon } from "@hugeicons/core-free-icons"
 import { cn } from "@workspace/ui/lib/utils"
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@workspace/ui/components/resizable"
+import { ChevronsLeftIcon, ChevronsRightIcon } from "@workspace/ui/icons"
 
 // Same numbers as the shadcn sidebar: a 3rem icon rail and a 200ms linear
 // width transition.
@@ -150,8 +149,9 @@ function CollapsiblePanel({
   }, [])
 
   // Chevrons point the way the panel will move: a left panel collapses left.
-  const collapseIcon = side === "left" ? ArrowLeftDoubleIcon : ArrowRightDoubleIcon
-  const expandIcon = side === "left" ? ArrowRightDoubleIcon : ArrowLeftDoubleIcon
+  const collapseIcon = side === "left" ? ChevronsLeftIcon : ChevronsRightIcon
+  const expandIcon = side === "left" ? ChevronsRightIcon : ChevronsLeftIcon
+  const ToggleIcon = isCollapsed ? expandIcon : collapseIcon
 
   if (!collapsible) {
     return (
@@ -188,11 +188,7 @@ function CollapsiblePanel({
         aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
         className="absolute top-2 right-2 z-10 flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <HugeiconsIcon
-          icon={isCollapsed ? expandIcon : collapseIcon}
-          strokeWidth={2}
-          className="size-4"
-        />
+        <ToggleIcon className="size-[18px]" />
       </button>
 
       {/* Kept mounted so panel state (scroll, focus, drafts) survives a
