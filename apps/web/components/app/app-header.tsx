@@ -30,7 +30,7 @@ export function AppHeader() {
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-6 border-b bg-background px-4">
       <Link href="/dashboard" className="flex items-center gap-2">
         <div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <LayoutBottomIcon className="size-[18px]" />
+          <LayoutBottomIcon fill="currentColor" className="size-[18px]" />
         </div>
         <span className="font-medium">Formly</span>
       </Link>

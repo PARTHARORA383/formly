@@ -46,11 +46,11 @@ export function IconTooltip({
           onClick={onClick}
           onPointerDown={onPointerDown}
           className={cn(
-            "inline-flex items-center justify-center rounded-sm text-muted-foreground transition-colors outline-none hover:text-foreground disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring",
+            "inline-flex items-center justify-center rounded-sm text-icon transition-colors outline-none hover:text-foreground disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring",
             className
           )}
         >
-          <Icon className={cn("size-[18px]", iconClassName)} />
+          <Icon fill="currentColor" className={cn("size-[18px]", iconClassName)} />
         </TooltipTrigger>
         <TooltipContent side={side}>{tooltip}</TooltipContent>
       </Tooltip>

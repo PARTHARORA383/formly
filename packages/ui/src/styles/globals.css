@@ -39,6 +39,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-foreground: var(--foreground);
+  --color-icon: var(--icon);
   --color-background: var(--background);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -51,6 +52,8 @@
 }
 
 :root {
+  /* Icons are a soft slate rather than the text colour. */
+  --icon: #71717b;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -91,6 +94,7 @@
      muted       #121212  question cards and other fields
      card        #161616  raised surfaces, and the selected question
      secondary   #232323  hover and pressed states */
+  --icon: #a1a1aa;
   --background: #080808;
   --foreground: #ededed;
   --card: #161616;

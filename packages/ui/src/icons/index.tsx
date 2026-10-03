@@ -1,8 +1,8 @@
 import * as React from "react"
 
 // The app's icon set. Every icon is drawn on an 18x18 grid in two tones of one
-// colour: the main shape in `fill` (currentColor by default, so it follows the
-// text colour) and a supporting shape in the same colour at 40% opacity.
+// colour: the main shape in `fill` (the --icon slate by default; pass
+// fill="currentColor" on a coloured background, e.g. a logo on a primary tile) and a supporting shape in the same colour at 40% opacity.
 // Pure glyphs (plus, close, check, chevrons) are single-tone, since there is
 // nothing to put in the background.
 //
@@ -32,7 +32,7 @@ const line = {
 
 function createIcon(displayName: string, draw: (tones: Tones) => React.ReactNode): IconComponent {
   function Icon({
-    fill = "currentColor",
+    fill = "var(--icon, currentColor)",
     secondaryfill,
     width = "1em",
     height = "1em",
@@ -197,6 +197,18 @@ const GridIcon = createIcon("GridIcon", ({ fill, light }) => (
   </>
 ))
 
+// The eye: a light almond with a dark pupil.
+const EyeIcon = createIcon("EyeIcon", ({ fill, light }) => (
+  <>
+    <path
+      d="M1.75 9C3.5 5.5 6 4 9 4s5.5 1.5 7.25 5c-1.75 3.5-4.25 5-7.25 5S3.5 12.5 1.75 9Z"
+      fill={light}
+      opacity={LIGHT}
+    />
+    <circle cx="9" cy="9" r="2.6" fill={fill} />
+  </>
+))
+
 const HelpCircleIcon = createIcon("HelpCircleIcon", ({ fill, light }) => (
   <>
     <circle cx="9" cy="9" r="7" fill={light} opacity={LIGHT} />
@@ -267,6 +279,7 @@ export {
   NoteIcon,
   GridIcon,
   HelpCircleIcon,
+  EyeIcon,
   SunIcon,
   MoonIcon,
   SidebarIcon,
