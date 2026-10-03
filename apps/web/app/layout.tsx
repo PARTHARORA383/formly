@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google"
 
-import { Toaster } from "sonner"
+import { AppToaster } from "@/components/common/app-toaster"
 
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -27,7 +27,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <QueryProvider>{children}</QueryProvider>
-          <Toaster position="bottom-center" />
+          <AppToaster />
         </ThemeProvider>
       </body>
     </html>
