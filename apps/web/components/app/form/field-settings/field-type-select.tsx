@@ -1,14 +1,16 @@
 "use client"
 
-import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { Button } from "@workspace/ui/components/button"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
-import { FIELD_TYPE_LIST, type FieldType } from "@/utils/constants"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { FIELD_TYPES, FIELD_TYPE_LIST, type FieldType } from "@/utils/constants"
+import { ChevronsUpDownIcon } from "@workspace/ui/icons"
 
 type FieldTypeSelectProps = {
   id: string
@@ -16,32 +18,48 @@ type FieldTypeSelectProps = {
   onChange: (type: FieldType) => void
 }
 
-const items = FIELD_TYPE_LIST.map(({ type, label }) => ({ value: type, label }))
-
+// A dropdown menu rather than a select: each type shows its icon, matching
+// the Elements panel, and the current one is marked with a tick.
 export function FieldTypeSelect({ id, value, onChange }: FieldTypeSelectProps) {
+  const current = FIELD_TYPES[value]
+
   return (
     <Field>
       <FieldLabel htmlFor={id}>Type</FieldLabel>
-      {/* items maps each value to its label, so the trigger shows "Short text"
-          rather than the raw "short_text". */}
-      <Select
-        value={value}
-        items={items}
-        onValueChange={(next) => {
-          if (next) onChange(next as FieldType)
-        }}
-      >
-        <SelectTrigger id={id} className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {FIELD_TYPE_LIST.map(({ type, label }) => (
-            <SelectItem key={type} value={type}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              id={id}
+              type="button"
+              variant="outline"
+              className="w-full justify-between px-2.5 font-normal"
+            />
+          }
+        >
+          <span className="flex items-center gap-2">
+            <current.icon className="size-[18px]" />
+            {current.label}
+          </span>
+          <ChevronsUpDownIcon
+            className="size-4 text-muted-foreground" />
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent>
+          <DropdownMenuRadioGroup
+            value={value}
+            onValueChange={(next) => onChange(next as FieldType)}
+          >
+            {FIELD_TYPE_LIST.map(({ type, label, icon: Icon }) => (
+              <DropdownMenuRadioItem key={type} value={type}>
+                <Icon className="size-[18px]" />
+                {label}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </Field>
   )
 }

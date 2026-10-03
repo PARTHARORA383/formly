@@ -35,6 +35,21 @@ export function CanvasCard({
           className="gap-1.5"
         />
       </div>
+
+      {/* The preview is inert, so a dropdown can't be opened here. Selecting
+          the card lays its options out underneath instead, as an open list. */}
+      {selected && field.type === "dropdown" && (
+        <ul className="mt-1.5 flex animate-in flex-col gap-0.5 rounded-lg border border-border/30 bg-muted/60 p-1 text-sm duration-150 fade-in dark:bg-muted">
+          {(field.options ?? []).map((option, index) => (
+            <li
+              key={option.id ?? `new-${index}`}
+              className={cn("rounded-md px-2 py-1", !option.label && "text-muted-foreground")}
+            >
+              {option.label || "Option"}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { PlusSignIcon } from "@hugeicons/core-free-icons"
+
 import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@/components/kibo-ui/spinner"
 import { useCreateForm } from "@/lib/query/form"
+import { PlusIcon } from "@workspace/ui/icons"
 
 export function NewFormButton() {
   const router = useRouter()
@@ -30,7 +30,7 @@ export function NewFormButton() {
         <Spinner variant="throbber" className="size-4" />
       ) : (
         <>
-          <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} className="size-4" />
+          <PlusIcon className="size-[18px]" />
           New form
         </>
       )}

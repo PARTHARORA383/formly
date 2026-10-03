@@ -1,11 +1,11 @@
 "use client"
 
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, PlusSignIcon } from "@hugeicons/core-free-icons"
 import { Button } from "@workspace/ui/components/button"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import { IconTooltip } from "@/components/common/icon-tooltip"
 import type { FieldOption } from "@/types/field"
+import { CloseIcon, PlusIcon } from "@workspace/ui/icons"
 
 type FieldOptionsEditorProps = {
   value: FieldOption[]
@@ -39,22 +39,20 @@ export function FieldOptionsEditor({ value, onChange }: FieldOptionsEditorProps)
               value={option.label}
               onChange={(e) => rename(index, e.target.value)}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Remove option ${index + 1}`}
+            <IconTooltip
+              icon={CloseIcon}
+              tooltip="Remove option"
+              side="top"
               // A choice field with nothing to choose from is unusable.
               disabled={value.length <= 1}
               onClick={() => remove(index)}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} className="size-4" />
-            </Button>
+              className="size-8 shrink-0 hover:bg-muted"
+            />
           </div>
         ))}
 
         <Button type="button" variant="outline" size="sm" onClick={add}>
-          <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} className="size-4" />
+          <PlusIcon className="size-[18px]" />
           Add option
         </Button>
       </div>

@@ -9,7 +9,7 @@ import {
   type SortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Cancel01Icon, Note01Icon } from "@hugeicons/core-free-icons"
+
 import { cn } from "@workspace/ui/lib/utils"
 import {
   CANVAS_AREA_ATTRIBUTE,
@@ -25,6 +25,7 @@ import { SaveDraftButton } from "@/components/app/form/save-draft-button"
 import { AddQuestionButton } from "@/components/app/form/add-question-button"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
+import { CloseIcon, NoteIcon } from "@workspace/ui/icons"
 
 function CanvasItem({
   field,
@@ -72,9 +73,9 @@ function CanvasItem({
       // the way while one is being carried.
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "group/item relative animate-in cursor-pointer touch-none rounded-lg border border-transparent duration-300 fade-in outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group/item relative animate-in cursor-pointer touch-none rounded-lg border border-transparent duration-300 fade-in outline-none focus:outline-none focus-visible:ring-0",
         // The slot the carried question will land in: a muted, fixed box.
-        isDragging && "border-border border-dashed bg-muted/60"
+        isDragging && "border-border border-dotted bg-muted"
       )}
     >
       {/* Kept in the layout, just hidden, so the slot keeps the card's size. */}
@@ -88,7 +89,7 @@ function CanvasItem({
       {/* Stops the press and the click here, so removing a question neither
           starts a drag nor selects the card on the way out. */}
       <IconTooltip
-        icon={Cancel01Icon}
+        icon={CloseIcon}
         tooltip="Remove question"
         side="top"
         onPointerDown={(event) => event.stopPropagation()}
@@ -101,7 +102,7 @@ function CanvasItem({
           selected && "opacity-100",
           isDragging && "hidden"
         )}
-        iconClassName="size-3.5"
+        iconClassName="size-4"
       />
     </div>
   )
@@ -153,7 +154,7 @@ export function FormCanvas({ publicId }: { publicId: string }) {
       >
         {fields.length === 0 ? (
           <EmptyState
-            icon={Note01Icon}
+            icon={NoteIcon}
             title="No questions yet"
             description="Add your first question to get started."
           />

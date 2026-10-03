@@ -4,7 +4,7 @@ import {
   CollapsiblePanels,
   CollapsiblePanel,
 } from "@workspace/ui/components/collapsible-panels"
-import { HelpCircleIcon } from "@hugeicons/core-free-icons"
+
 import { Spinner } from "@/components/kibo-ui/spinner"
 import { EmptyState } from "@/components/common/empty-state"
 import { useFormDraft } from "@/hooks/use-form-draft"
@@ -13,6 +13,7 @@ import { FormDndProvider } from "@/components/app/form/form-dnd"
 import { ElementsPanel } from "@/components/app/form/elements-panel"
 import { FormCanvas } from "@/components/app/form/form-canvas"
 import { FieldSettings } from "@/components/app/form/field-settings/field-settings"
+import { HelpCircleIcon } from "@workspace/ui/icons"
 
 /** The three panel frame for the builder. */
 export function FormBuilderLayout({ publicId }: { publicId: string }) {

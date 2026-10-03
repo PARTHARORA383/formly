@@ -116,7 +116,7 @@ export function FieldInput({
                     // Base UI passes null when the selection is cleared.
                     onValueChange={(next) => onChange(next ?? undefined)}
                 >
-                    <SelectTrigger id={id} aria-invalid={!!error}>
+                    <SelectTrigger id={id} aria-invalid={!!error} className="w-full">
                         <SelectValue placeholder={field.placeholder || DEFAULT_PLACEHOLDER} />
                     </SelectTrigger>
                     <SelectContent>

@@ -1,15 +1,9 @@
 "use client"
 
 import * as React from "react"
-import {
-  CursorPointer01Icon,
-  Menu01Icon,
-  TextFontIcon,
-  TextAlignLeftIcon,
-} from "@hugeicons/core-free-icons"
-import type { IconSvgElement } from "@hugeicons/react"
+import type { IconComponent } from "@workspace/ui/icons"
+
 import { FieldGroup } from "@workspace/ui/components/field"
-import { Separator } from "@workspace/ui/components/separator"
 import { useCollapsiblePanel } from "@workspace/ui/components/collapsible-panels"
 import { cn } from "@workspace/ui/lib/utils"
 import useFields, { fieldKey, selectSelectedField } from "@/lib/zustand/form"
@@ -22,6 +16,7 @@ import { FieldOptionsEditor } from "@/components/app/form/field-settings/field-o
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
 import { FIELD_TYPES } from "@/utils/constants"
+import { CursorIcon, GridIcon, LongTextIcon, TextIcon } from "@workspace/ui/icons"
 
 // A minimum width keeps the content from reflowing while the panel narrows;
 // the panel edge clips it instead. Padding tightens so a 32px icon fits the rail.
@@ -41,7 +36,7 @@ function RailSlot({
   align = "bottom",
   children,
 }: {
-  icon: IconSvgElement
+  icon: IconComponent
   label: string
   /** Where the icon sits: over a one-line control, or at the top of a tall one. */
   align?: "bottom" | "top"
@@ -62,7 +57,7 @@ function RailSlot({
         side="left"
         onClick={expand}
         className={cn(
-          "pointer-events-none absolute left-0 size-8 rounded-lg border bg-background opacity-0 transition-opacity duration-200 ease-linear group-data-[collapsible=icon]:pointer-events-auto group-data-[collapsible=icon]:opacity-100",
+          "pointer-events-none absolute left-0 size-8 rounded-lg text-foreground opacity-0 transition-[opacity,background-color] duration-200 ease-linear hover:bg-muted group-data-[collapsible=icon]:pointer-events-auto group-data-[collapsible=icon]:opacity-100",
           align === "bottom" ? "bottom-0" : "top-7"
         )}
       />
@@ -85,7 +80,7 @@ export function FieldSettings() {
         <h3 className={cn("text-sm font-medium whitespace-nowrap", FADE)}>Question settings</h3>
 
         <EmptyState
-          icon={CursorPointer01Icon}
+          icon={CursorIcon}
           title="No question selected"
           description="Select a question to edit its settings."
           className={FADE}
@@ -102,7 +97,7 @@ export function FieldSettings() {
       <h3 className={cn("text-sm font-medium whitespace-nowrap", FADE)}>Question settings</h3>
 
       <FieldGroup>
-        <RailSlot icon={Menu01Icon} label="Type">
+        <RailSlot icon={GridIcon} label="Type">
           <FieldTypeSelect
             id={`${baseId}-type`}
             value={selectedField.type}
@@ -110,7 +105,7 @@ export function FieldSettings() {
           />
         </RailSlot>
 
-        <RailSlot icon={TextFontIcon} label="Label">
+        <RailSlot icon={TextIcon} label="Label">
           <FieldLabelInput
             id={`${baseId}-label`}
             value={selectedField.label}
@@ -118,7 +113,7 @@ export function FieldSettings() {
           />
         </RailSlot>
 
-        <RailSlot icon={TextAlignLeftIcon} label="Description" align="top">
+        <RailSlot icon={LongTextIcon} label="Description" align="top">
           <FieldDescriptionInput
             id={`${baseId}-description`}
             value={selectedField.description}
@@ -136,8 +131,6 @@ export function FieldSettings() {
             />
           )}
 
-          <Separator />
-
           <FieldRequiredSwitch
             id={`${baseId}-required`}
             checked={selectedField.required}
@@ -145,13 +138,10 @@ export function FieldSettings() {
           />
 
           {definition.hasOptions && (
-            <>
-              <Separator />
-              <FieldOptionsEditor
-                value={selectedField.options ?? []}
-                onChange={(options) => updateField(key, { options })}
-              />
-            </>
+            <FieldOptionsEditor
+              value={selectedField.options ?? []}
+              onChange={(options) => updateField(key, { options })}
+            />
           )}
         </div>
       </FieldGroup>

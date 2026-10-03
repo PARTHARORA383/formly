@@ -1,7 +1,8 @@
 "use client"
 
 import type * as React from "react"
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
+import type { IconComponent } from "@workspace/ui/icons"
+
 import { cn } from "@workspace/ui/lib/utils"
 import {
   Tooltip,
@@ -11,10 +12,12 @@ import {
 } from "@workspace/ui/components/tooltip"
 
 type IconTooltipProps = {
-  icon: IconSvgElement
+  icon: IconComponent
   /** Shown on hover or keyboard focus, and used as the icon's accessible name. */
   tooltip: string
   side?: "top" | "right" | "bottom" | "left"
+  /** Greys the button out and ignores clicks. */
+  disabled?: boolean
   /** Makes the icon an action button rather than just a hint. */
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   onPointerDown?: React.PointerEventHandler<HTMLButtonElement>
@@ -24,9 +27,10 @@ type IconTooltipProps = {
 
 // An icon that explains itself on hover, e.g. next to a setting's label.
 export function IconTooltip({
-  icon,
+  icon: Icon,
   tooltip,
   side = "top",
+  disabled,
   onClick,
   onPointerDown,
   className,
@@ -38,14 +42,15 @@ export function IconTooltip({
         <TooltipTrigger
           type="button"
           aria-label={tooltip}
+          disabled={disabled}
           onClick={onClick}
           onPointerDown={onPointerDown}
           className={cn(
-            "inline-flex items-center justify-center rounded-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring",
+            "inline-flex items-center justify-center rounded-sm text-muted-foreground transition-colors outline-none hover:text-foreground disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring",
             className
           )}
         >
-          <HugeiconsIcon icon={icon} strokeWidth={2} className={cn("size-4", iconClassName)} />
+          <Icon className={cn("size-[18px]", iconClassName)} />
         </TooltipTrigger>
         <TooltipContent side={side}>{tooltip}</TooltipContent>
       </Tooltip>

@@ -3,8 +3,8 @@
 import Image from "next/image"
 import { LoginForm } from "@/components/login-form"
 import { GuestGuard } from "@/components/app/guest-guard"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { LayoutBottomIcon } from "@hugeicons/core-free-icons"
+import { LayoutBottomIcon } from "@workspace/ui/icons"
+
 
 export default function LoginPage() {
   return (
@@ -14,11 +14,8 @@ export default function LoginPage() {
           <div className="flex justify-center gap-2 md:justify-start">
             <a href="#" className="flex items-center gap-2 font-medium">
               <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <HugeiconsIcon
-                  icon={LayoutBottomIcon}
-                  strokeWidth={2}
-                  className="size-4"
-                />
+                <LayoutBottomIcon
+                  className="size-4" />
               </div>
               Acme Inc.
             </a>

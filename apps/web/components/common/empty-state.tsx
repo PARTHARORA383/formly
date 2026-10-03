@@ -1,8 +1,8 @@
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
+import type { IconComponent } from "@workspace/ui/icons"
 import { cn } from "@workspace/ui/lib/utils"
 
 type EmptyStateProps = {
-  icon: IconSvgElement
+  icon: IconComponent
   title: string
   description?: string
   className?: string
@@ -10,7 +10,7 @@ type EmptyStateProps = {
 
 // A single icon on a muted tile, a title and an optional line of help. Used
 // wherever a panel has nothing to show yet.
-export function EmptyState({ icon, title, description, className }: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, className }: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -19,7 +19,7 @@ export function EmptyState({ icon, title, description, className }: EmptyStatePr
       )}
     >
       <div className="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-        <HugeiconsIcon icon={icon} strokeWidth={2} className="size-5" />
+        <Icon className="size-6" />
       </div>
 
       <div className="flex flex-col gap-1">

@@ -4,17 +4,12 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
-import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  Moon02Icon,
-  Sun01Icon,
-  ArrowDown01Icon,
-  LayoutBottomIcon,
-} from "@hugeicons/core-free-icons"
+
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
 import { UserAvatar } from "@/components/app/user-avatar"
 import { useMe } from "@/lib/query/auth"
+import { ChevronDownIcon, LayoutBottomIcon, MoonIcon, SunIcon } from "@workspace/ui/icons"
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard" },
@@ -35,7 +30,7 @@ export function AppHeader() {
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-6 border-b bg-background px-4">
       <Link href="/dashboard" className="flex items-center gap-2">
         <div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <HugeiconsIcon icon={LayoutBottomIcon} strokeWidth={2} className="size-4" />
+          <LayoutBottomIcon className="size-[18px]" />
         </div>
         <span className="font-medium">Formly</span>
       </Link>
@@ -69,19 +64,13 @@ export function AppHeader() {
           aria-label="Toggle theme"
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
         >
-          {mounted && (
-            <HugeiconsIcon
-              icon={resolvedTheme === "dark" ? Sun01Icon : Moon02Icon}
-              strokeWidth={2}
-              className="size-4"
-            />
-          )}
+          {mounted && (resolvedTheme === "dark" ? <SunIcon className="size-[18px]" /> : <MoonIcon className="size-[18px]" />)}
         </Button>
 
         <Button variant="ghost" className="gap-2">
           <UserAvatar user={user} size={24} />
           <span className="text-sm">{user?.name ?? "Account"}</span>
-          <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} className="size-4" />
+          <ChevronDownIcon className="size-[18px]" />
         </Button>
       </div>
     </header>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useDraggable } from "@dnd-kit/core"
-import { HugeiconsIcon } from "@hugeicons/react"
+
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
 import { useCollapsiblePanel } from "@workspace/ui/components/collapsible-panels"
@@ -18,7 +18,7 @@ import { ELEMENT_GROUPS, FIELD_TYPES, type FieldType } from "@/utils/constants"
 function ElementButton({ type }: { type: FieldType }) {
   const addField = useFields((state) => state.addField)
   const { isCollapsed, expand } = useCollapsiblePanel()
-  const { label, icon } = FIELD_TYPES[type]
+  const { label, icon: Icon } = FIELD_TYPES[type]
   const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
     id: `element-${type}`,
     data: { kind: "element", type },
@@ -33,14 +33,16 @@ function ElementButton({ type }: { type: FieldType }) {
       aria-label={label}
       // The original stays put but faded while its copy follows the pointer.
       className={cn(
-        "w-full cursor-grab touch-none justify-start gap-2 overflow-hidden px-2 whitespace-nowrap transition-opacity",
+        "w-full cursor-grab touch-none justify-start gap-2 overflow-hidden px-2 whitespace-nowrap transition-[opacity,background-color,border-color]",
+        // Collapsed to icons: no border or fill until hovered.
+        "group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:hover:bg-muted dark:group-data-[collapsible=icon]:bg-transparent dark:group-data-[collapsible=icon]:hover:bg-muted",
         isDragging && "opacity-40"
       )}
       onClick={() => (isCollapsed ? expand() : addField(type))}
       {...listeners}
       {...attributes}
     >
-      <HugeiconsIcon icon={icon} strokeWidth={2} className="size-4 shrink-0" />
+      <Icon className="size-[18px] shrink-0" />
       {label}
     </Button>
   )

@@ -1,21 +1,12 @@
-import {
-  ArrowDown01Icon,
-  Calendar01Icon,
-  CheckmarkSquare01Icon,
-  HashtagIcon,
-  Mail01Icon,
-  RadioButtonIcon,
-  TextAlignLeftIcon,
-  TextFontIcon,
-} from "@hugeicons/core-free-icons"
-import type { IconSvgElement } from "@hugeicons/react"
+import type { IconComponent } from "@workspace/ui/icons"
 import type { FormField, FieldOption } from "@/types/field"
+import { CalendarIcon, CheckSquareIcon, SelectBoxIcon, HashIcon, LongTextIcon, MailIcon, RadioIcon, TextIcon } from "@workspace/ui/icons"
 
 type FieldType = FormField["type"]
 
 type FieldTypeDefinition = {
   label: string
-  icon: IconSvgElement
+  icon: IconComponent
   /** Choice types carry a list of options; everything else must not. */
   hasOptions: boolean
   /** Whether the input renders placeholder text (see field-input.tsx). */
@@ -31,19 +22,20 @@ const LABEL_PLACEHOLDER = "Type your question here"
 // One entry per field type. The settings panel and the elements list both read
 // this, so adding a type means adding a line here.
 const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
-  short_text: { label: "Short text", icon: TextFontIcon, hasOptions: false, hasPlaceholder: true },
-  long_text: { label: "Long text", icon: TextAlignLeftIcon, hasOptions: false, hasPlaceholder: true },
-  email: { label: "Email", icon: Mail01Icon, hasOptions: false, hasPlaceholder: true },
-  number: { label: "Number", icon: HashtagIcon, hasOptions: false, hasPlaceholder: true },
-  date: { label: "Date", icon: Calendar01Icon, hasOptions: false, hasPlaceholder: false },
-  dropdown: { label: "Dropdown", icon: ArrowDown01Icon, hasOptions: true, hasPlaceholder: true },
-  single_select: { label: "Single select", icon: RadioButtonIcon, hasOptions: true, hasPlaceholder: false },
-  multi_select: { label: "Multi select", icon: CheckmarkSquare01Icon, hasOptions: true, hasPlaceholder: false },
+  short_text: { label: "Short text", icon: TextIcon, hasOptions: false, hasPlaceholder: true },
+  long_text: { label: "Long text", icon: LongTextIcon, hasOptions: false, hasPlaceholder: true },
+  email: { label: "Email", icon: MailIcon, hasOptions: false, hasPlaceholder: true },
+  number: { label: "Number", icon: HashIcon, hasOptions: false, hasPlaceholder: true },
+  date: { label: "Date", icon: CalendarIcon, hasOptions: false, hasPlaceholder: false },
+  dropdown: { label: "Dropdown", icon: SelectBoxIcon, hasOptions: true, hasPlaceholder: true },
+  single_select: { label: "Single select", icon: RadioIcon, hasOptions: true, hasPlaceholder: false },
+  multi_select: { label: "Multi select", icon: CheckSquareIcon, hasOptions: true, hasPlaceholder: false },
 }
 
 const FIELD_TYPE_LIST = (Object.keys(FIELD_TYPES) as FieldType[]).map((type) => ({
   type,
   label: FIELD_TYPES[type].label,
+  icon: FIELD_TYPES[type].icon,
 }))
 
 // How the elements list groups the types, in display order.
