@@ -47,20 +47,25 @@ export function FormBuilderLayout({ publicId }: { publicId: string }) {
     <FormDndProvider>
     <CollapsiblePanels className="h-full">
       <CollapsiblePanel
-        defaultSize={20}
-        minSize={15}
+        defaultSize="25%"
+        minSize="18%"
         collapsible
         side="left"
         iconMode
+        // Opens as the icon rail; the canvas gets the room.
+        defaultCollapsed
       >
         <ElementsPanel />
       </CollapsiblePanel>
 
-      <CollapsiblePanel defaultSize={55} minSize={30}>
+      {/* No default size: it takes whatever the other two leave, which is what
+          makes the pixel-sized collapsed rail and the percentage-sized settings
+          panel add up. */}
+      <CollapsiblePanel minSize="30%">
         <FormCanvas publicId={publicId} />
       </CollapsiblePanel>
 
-      <CollapsiblePanel defaultSize={25} minSize={20} collapsible side="right" iconMode>
+      <CollapsiblePanel defaultSize="30%" minSize="20%" collapsible side="right" iconMode>
         <SettingsPanel />
       </CollapsiblePanel>
     </CollapsiblePanels>

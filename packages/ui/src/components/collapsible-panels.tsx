@@ -34,10 +34,13 @@ function useCollapsiblePanel() {
 
 type CollapsiblePanelProps = {
   children: React.ReactNode
-  /** Percentage of the group, same units as ResizablePanel. */
-  defaultSize?: number
-  minSize?: number
-  maxSize?: number
+  /**
+   * Sizes follow ResizablePanel: a plain number is pixels, so write percentages
+   * as strings ("20%").
+   */
+  defaultSize?: number | string
+  minSize?: number | string
+  maxSize?: number | string
   /** Adds the collapse toggle. Omit for panels that should always stay open. */
   collapsible?: boolean
   /** Which way the chevrons point: a left panel collapses left. The toggle is always top-right. */
@@ -49,6 +52,8 @@ type CollapsiblePanelProps = {
    * buttons shrinking to icons). Without this the content just fades away.
    */
   iconMode?: boolean
+  /** Start collapsed, so the page opens with only the icon rail showing. */
+  defaultCollapsed?: boolean
   className?: string
 }
 
@@ -60,12 +65,15 @@ function CollapsiblePanel({
   collapsible = false,
   side = "left",
   iconMode = false,
+  defaultCollapsed = false,
   className,
 }: CollapsiblePanelProps) {
   const panelRef = usePanelRef()
   const elementRef = React.useRef<HTMLDivElement>(null)
   const bodyRef = React.useRef<HTMLDivElement>(null)
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  // Starts in step with the size below, so the first paint is already the rail
+  // rather than the open panel shrinking into one.
+  const [isCollapsed, setIsCollapsed] = React.useState(collapsible && defaultCollapsed)
   const animationTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   // True while a button-driven collapse/expand is animating. The width observer
   // below must stay quiet then: mid-animation the width is still above the
@@ -169,7 +177,8 @@ function CollapsiblePanel({
   return (
     <ResizablePanel
       panelRef={panelRef}
-      defaultSize={defaultSize}
+      // A panel whose starting size is its collapsed size starts collapsed.
+      defaultSize={defaultCollapsed ? COLLAPSED_WIDTH : defaultSize}
       minSize={minSize}
       maxSize={maxSize}
       collapsible
