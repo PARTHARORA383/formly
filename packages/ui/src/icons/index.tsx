@@ -217,9 +217,9 @@ const HelpCircleIcon = createIcon("HelpCircleIcon", ({ fill, light }) => (
   </>
 ))
 
-const SunIcon = createIcon("SunIcon", ({ fill, light }) => (
+const SunIcon = createIcon("SunIcon", ({ fill }) => (
   <>
-    <circle cx="9" cy="9" r="3.25" fill={light} fillOpacity={LIGHT} stroke={fill} strokeWidth="1.5" />
+    <circle cx="9" cy="9" r="3.25" fill="none" stroke={fill} strokeWidth="1.5" />
     <path
       d="M9 1.75v1.5M9 14.75v1.5M1.75 9h1.5M14.75 9h1.5M3.87 3.87l1.06 1.06M13.07 13.07l1.06 1.06M14.13 3.87l-1.06 1.06M4.93 13.07l-1.06 1.06"
       stroke={fill}
@@ -228,12 +228,11 @@ const SunIcon = createIcon("SunIcon", ({ fill, light }) => (
   </>
 ))
 
-const MoonIcon = createIcon("MoonIcon", ({ fill, light }) => (
+const MoonIcon = createIcon("MoonIcon", ({ fill }) => (
   <>
     <path
       d="M15.75 9.59A6.75 6.75 0 1 1 8.41 2.25 5.25 5.25 0 0 0 15.75 9.59Z"
-      fill={light}
-      fillOpacity={LIGHT}
+      fill="none"
       stroke={fill}
       strokeWidth="1.5"
       strokeLinejoin="round"
