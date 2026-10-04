@@ -51,7 +51,7 @@ export function FieldOptionsEditor({ value, onChange }: FieldOptionsEditorProps)
           </div>
         ))}
 
-        <Button type="button" variant="outline" size="sm" onClick={add}>
+        <Button type="button" variant="secondary" size="sm" onClick={add}>
           <PlusIcon className="size-[18px]" />
           Add option
         </Button>

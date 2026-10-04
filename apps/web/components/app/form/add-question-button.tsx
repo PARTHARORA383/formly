@@ -20,7 +20,7 @@ export function AddQuestionButton() {
       aria-label="Add question"
       // Muted rather than primary. In the rail the padding shrinks so the icon
       // sits in the middle of the 32px button (1px border + 6px + 18px icon).
-      className="w-full justify-start gap-2 overflow-hidden bg-muted px-2 whitespace-nowrap text-foreground transition-[padding,background-color] hover:bg-muted/70 group-data-[collapsible=icon]:px-1.5 dark:hover:bg-muted/70"
+      className="h-8 w-full justify-start gap-2 overflow-hidden rounded-lg bg-muted px-2 whitespace-nowrap text-foreground transition-[padding,background-color] hover:bg-muted/70 group-data-[collapsible=icon]:px-1.5 dark:hover:bg-muted/70"
       onClick={() => (isCollapsed ? expand() : addField())}
     >
       <PlusIcon className="size-[18px] shrink-0" />

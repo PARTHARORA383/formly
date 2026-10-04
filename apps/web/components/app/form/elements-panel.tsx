@@ -34,7 +34,7 @@ function ElementButton({ type }: { type: FieldType }) {
       aria-label={label}
       // The original stays put but faded while its copy follows the pointer.
       className={cn(
-        "w-full cursor-grab touch-none justify-start gap-2 overflow-hidden px-2 whitespace-nowrap transition-[opacity,background-color,color,padding] group-data-[collapsible=icon]:px-1.5",
+        "h-8 w-full cursor-grab touch-none justify-start gap-2 overflow-hidden rounded-lg px-2 whitespace-nowrap transition-[opacity,background-color,color,padding] group-data-[collapsible=icon]:px-1.5",
         // No border or fill at rest. On hover: a muted background and sky text.
         "border-transparent bg-transparent hover:bg-muted hover:text-sky-500 dark:border-transparent dark:bg-transparent dark:hover:bg-muted",
         // Icons stay slate at rest. On hover they turn sky: the main shape in

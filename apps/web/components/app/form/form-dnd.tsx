@@ -211,7 +211,7 @@ function ElementPreview({ type, width }: { type: FieldType; width: number }) {
       type="button"
       variant="outline"
       style={{ width: width || undefined }}
-      className="cursor-grabbing justify-start gap-2 bg-background px-2 whitespace-nowrap opacity-70 shadow-lg"
+      className="h-8 cursor-grabbing justify-start gap-2 rounded-lg bg-background px-2 whitespace-nowrap opacity-70 shadow-lg"
     >
       <Icon className="size-[18px] shrink-0" />
       {label}

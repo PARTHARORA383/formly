@@ -34,7 +34,7 @@ export function FieldTypeSelect({ id, value, onChange }: FieldTypeSelectProps) {
               id={id}
               type="button"
               variant="outline"
-              className="w-full justify-between px-2.5 font-normal"
+              className="h-8 w-full justify-between rounded-lg px-2.5 font-normal"
             />
           }
         >

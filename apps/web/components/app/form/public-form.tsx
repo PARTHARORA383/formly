@@ -95,7 +95,7 @@ export function PublicForm({ publicId }: { publicId: string }) {
           {form.title || "Untitled form"}
         </h1>
         {form.description && (
-          <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+          <p className="text-sm text-muted-foreground whitespace-pre-line [overflow-wrap:anywhere]">
             {form.description}
           </p>
         )}
@@ -132,13 +132,9 @@ export function PublicForm({ publicId }: { publicId: string }) {
             it never ends up in their own responses. */}
         <Button
           type="submit"
-          variant="outline"
+          variant="brand"
           disabled={form.preview}
           title={form.preview ? "Submitting is switched off in preview" : undefined}
-          // A quiet raised pill rather than a solid primary button: a muted
-          // fill (the card surface in dark mode), a hairline border, softer
-          // corners and medium-weight text.
-          className="h-11 rounded-xl border-border bg-muted px-7 text-sm font-medium text-foreground hover:bg-secondary dark:border-border dark:bg-card dark:hover:bg-secondary"
         >
           Submit form
         </Button>
