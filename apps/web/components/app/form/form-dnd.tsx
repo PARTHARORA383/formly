@@ -14,7 +14,7 @@ import {
   type DragStartEvent,
   type Modifier,
 } from "@dnd-kit/core"
-import { HugeiconsIcon } from "@hugeicons/react"
+
 import { Button } from "@workspace/ui/components/button"
 import { CanvasCard } from "@/components/app/form/canvas-card"
 import useFields, { fieldKey } from "@/lib/zustand/form"
@@ -179,7 +179,7 @@ export function FormDndProvider({ children }: { children: React.ReactNode }) {
             if (active.data.current?.kind === "field") {
               const final = `translate3d(${transform.final.x}px, ${transform.final.y}px, 0)`
               return [
-                { transform: `${position} rotate(2deg) scale(1.03)` },
+                { transform: `${position} rotate(-3deg) scale(1.03)` },
                 { transform: `${final} rotate(0deg) scale(1)` },
               ]
             }
@@ -204,16 +204,16 @@ export function FormDndProvider({ children }: { children: React.ReactNode }) {
 
 // The whole element follows the pointer, faded so the canvas stays readable.
 function ElementPreview({ type, width }: { type: FieldType; width: number }) {
-  const { label, icon } = FIELD_TYPES[type]
+  const { label, icon: Icon } = FIELD_TYPES[type]
 
   return (
     <Button
       type="button"
       variant="outline"
       style={{ width: width || undefined }}
-      className="cursor-grabbing justify-start gap-2 bg-background px-2 whitespace-nowrap opacity-70 shadow-lg"
+      className="h-8 cursor-grabbing justify-start gap-2 rounded-lg bg-background px-2 whitespace-nowrap opacity-70 shadow-lg"
     >
-      <HugeiconsIcon icon={icon} strokeWidth={2} className="size-4 shrink-0" />
+      <Icon className="size-[18px] shrink-0" />
       {label}
     </Button>
   )
@@ -229,9 +229,9 @@ function FieldPreview({ fieldId, width }: { fieldId: string; width: number }) {
   return (
     <div
       style={{ width: width || undefined }}
-      className="rotate-2 scale-[1.03] cursor-grabbing rounded-lg shadow-2xl ring-2 ring-primary/30"
+      className="-rotate-3 scale-[1.03] cursor-grabbing rounded-lg shadow-[0_18px_40px_-12px] shadow-sky-500/40"
     >
-      <CanvasCard field={field} selected className="bg-background" />
+      <CanvasCard field={field} className="border-sky-500 bg-muted dark:bg-muted" />
     </div>
   )
 }
