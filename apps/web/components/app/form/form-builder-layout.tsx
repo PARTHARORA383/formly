@@ -11,7 +11,7 @@ import { useFormDraft } from "@/hooks/use-form-draft"
 import { useLoadForm } from "@/hooks/use-load-form"
 import { FormDndProvider } from "@/components/app/form/form-dnd"
 import { ElementsPanel } from "@/components/app/form/elements-panel"
-import { FormCanvas } from "@/components/app/form/form-canvas"
+import { FormCanvas } from "@/components/app/form/canvas/form-canvas"
 import { SettingsPanel } from "@/components/app/form/settings-panel"
 import { HelpCircleIcon } from "@workspace/ui/icons"
 

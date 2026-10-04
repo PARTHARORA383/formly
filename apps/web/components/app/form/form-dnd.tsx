@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/core"
 
 import { Button } from "@workspace/ui/components/button"
-import { CanvasCard } from "@/components/app/form/canvas-card"
+import { CanvasCard } from "@/components/app/form/canvas/canvas-card"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import { FIELD_TYPES, type FieldType } from "@/utils/constants"
 

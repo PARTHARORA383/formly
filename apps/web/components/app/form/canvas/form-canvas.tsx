@@ -17,11 +17,11 @@ import {
   CANVAS_ITEM_ATTRIBUTE,
   useFormDnd,
 } from "@/components/app/form/form-dnd"
-import { CanvasFormHeader } from "@/components/app/form/canvas-form-header"
-import { CanvasCard } from "@/components/app/form/canvas-card"
+import { CanvasFormHeader } from "@/components/app/form/canvas/canvas-form-header"
+import { CanvasCard } from "@/components/app/form/canvas/canvas-card"
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
-import { CanvasHeader } from "@/components/app/form/canvas-header"
+import { CanvasHeader } from "@/components/app/form/canvas/canvas-header"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
 import { CloseIcon, NoteIcon } from "@workspace/ui/icons"
