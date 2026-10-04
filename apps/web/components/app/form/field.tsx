@@ -34,7 +34,7 @@ export function FieldRenderer({ field, value, onChange, error, className }: Fiel
                 {field.required && <span aria-hidden="true"> *</span>}
             </FieldLabel>
 
-            {field.description && <FieldDescription className="[overflow-wrap:anywhere]">
+            {field.description && <FieldDescription className="whitespace-pre-line [overflow-wrap:anywhere]">
                     {field.description}
                 </FieldDescription>}
 

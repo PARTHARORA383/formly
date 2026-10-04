@@ -11,12 +11,17 @@ export function fieldKey(field: FormField) {
     return field.tempId ?? String(field.id)
 }
 
+type SettingsTab = "form" | "question"
+
 type FieldsStore = {
     title: string
     description: string
     settings: FormSettings
     fields: Fields
     selectedKey: string | null
+    // Which tab the settings panel shows. Lives here, not in the panel, so
+    // something outside it (the form heading on the canvas) can switch it.
+    settingsTab: SettingsTab
     addField: (type?: FieldType, index?: number) => void
     removeField: (key: string) => void
     setFields: (fields: Fields) => void
@@ -29,6 +34,7 @@ type FieldsStore = {
     selectField: (key: string) => void
     updateField: (key: string, patch: Partial<FormField>) => void
     changeFieldType: (key: string, type: FieldType) => void
+    setSettingsTab: (tab: SettingsTab) => void
     reset: () => void
 }
 
@@ -38,6 +44,7 @@ const useFields = create<FieldsStore>((set) => ({
     settings: {},
     fields: [],
     selectedKey: null,
+    settingsTab: "form",
 
     // index inserts at that spot (a drop between questions); omitted appends.
     addField: (type = "short_text", index) =>
@@ -151,7 +158,10 @@ const useFields = create<FieldsStore>((set) => ({
 
     // The store is module-level, so it outlives the page. Without this, opening
     // a second form would show the first form's questions.
-    reset: () => set({ title: "", description: "", settings: {}, fields: [], selectedKey: null }),
+    setSettingsTab: (settingsTab) => set({ settingsTab }),
+
+    reset: () =>
+        set({ title: "", description: "", settings: {}, fields: [], selectedKey: null, settingsTab: "form" }),
 }))
 
 // Selecting the object rather than the whole store means a component only

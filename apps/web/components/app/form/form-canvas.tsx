@@ -21,10 +21,7 @@ import { CanvasFormHeader } from "@/components/app/form/canvas-form-header"
 import { CanvasCard } from "@/components/app/form/canvas-card"
 import { IconTooltip } from "@/components/common/icon-tooltip"
 import { EmptyState } from "@/components/common/empty-state"
-import { FormDetails } from "@/components/app/form/form-details"
-import { PreviewButton } from "@/components/app/form/preview-button"
-import { PublishButton } from "@/components/app/form/publish-button"
-import { SaveDraftButton } from "@/components/app/form/save-draft-button"
+import { CanvasHeader } from "@/components/app/form/canvas-header"
 import useFields, { fieldKey } from "@/lib/zustand/form"
 import type { FormField } from "@/types/field"
 import { CloseIcon, NoteIcon } from "@workspace/ui/icons"
@@ -128,6 +125,7 @@ export function FormCanvas({ publicId }: { publicId: string }) {
   const fields = useFields((state) => state.fields)
   const selectedKey = useFields((state) => state.selectedKey)
   const selectField = useFields((state) => state.selectField)
+  const setSettingsTab = useFields((state) => state.setSettingsTab)
   const { dropIndex, activeKind } = useFormDnd()
   const { setNodeRef } = useDroppable({ id: CANVAS_DROPPABLE_ID })
 
@@ -138,14 +136,7 @@ export function FormCanvas({ publicId }: { publicId: string }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center justify-between border-b px-4 py-2">
-        <FormDetails />
-        <div className="flex items-center gap-2">
-          <PreviewButton publicId={publicId} />
-          <SaveDraftButton publicId={publicId} />
-          <PublishButton publicId={publicId} />
-        </div>
-      </div>
+      <CanvasHeader publicId={publicId} />
 
       <div
         ref={setNodeRef}
@@ -179,7 +170,12 @@ export function FormCanvas({ publicId }: { publicId: string }) {
                     field={field}
                     selected={key === selectedKey}
                     dimmed={selectedKey !== null && key !== selectedKey}
-                    onSelect={() => selectField(key)}
+                    onSelect={() => {
+                      selectField(key)
+                      // Even when it is already the selected one, so clicking a question
+                      // after visiting the Form tab always brings its settings back.
+                      setSettingsTab("question")
+                    }}
                   />
                 </React.Fragment>
               )

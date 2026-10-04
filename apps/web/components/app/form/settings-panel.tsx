@@ -24,11 +24,12 @@ type Tab = "form" | "question"
 export function SettingsPanel() {
   const selectedKey = useFields((state) => state.selectedKey)
   const { isCollapsed } = useCollapsiblePanel()
-  const [tab, setTab] = React.useState<Tab>("form")
+  const tab = useFields((state) => state.settingsTab)
+  const setTab = useFields((state) => state.setSettingsTab)
 
   React.useEffect(() => {
     if (selectedKey) setTab("question")
-  }, [selectedKey])
+  }, [selectedKey, setTab])
 
   return (
     <Tabs value={tab} onValueChange={(next) => setTab(next as Tab)} className="gap-0">
