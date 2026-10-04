@@ -18,7 +18,7 @@ export function AppToaster() {
         unstyled: true,
         classNames: {
           toast:
-            "flex w-(--width) items-center gap-3 rounded-xl border border-border/30 bg-muted/50 px-5 py-2 text-foreground  backdrop-blur-2xl backdrop-saturate-150",
+            "flex w-(--width) items-center gap-3 rounded-xl border border-foreground/15 bg-muted/50 px-5 py-2 text-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.7)] backdrop-blur-2xl backdrop-saturate-150 dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)]",
           icon: "flex size-5 shrink-0 items-center justify-center [&>svg]:size-5",
           content: "flex flex-col gap-0.5",
           title: "text-[0.9375rem] leading-snug font-medium tracking-tight",
