@@ -72,6 +72,14 @@ const CheckIcon = createIcon("CheckIcon", ({ fill }) => (
   <path d="M4 9.5l3.5 3.5 7-7.5" stroke={fill} {...line} />
 ))
 
+// A tick in a disc: the disc in the light tone, the tick in the main one.
+const CheckCircleIcon = createIcon("CheckCircleIcon", ({ fill, light }) => (
+  <>
+    <circle cx="9" cy="9" r="7.25" fill={light} opacity={LIGHT} />
+    <path d="M5.75 9.25l2.5 2.5 4-4.5" stroke={fill} {...line} />
+  </>
+))
+
 const ChevronDownIcon = createIcon("ChevronDownIcon", ({ fill }) => (
   <path d="M4.5 7l4.5 4.5L13.5 7" stroke={fill} {...line} />
 ))
@@ -260,6 +268,7 @@ export {
   PlusIcon,
   CloseIcon,
   CheckIcon,
+  CheckCircleIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ChevronRightIcon,
