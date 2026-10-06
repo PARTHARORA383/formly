@@ -17,19 +17,12 @@ const fieldTypeSchema = z.enum([
 ])
 
 const fieldOptionInputSchema = z.object({
-    // Present = existing row to update, absent = new option to insert
     id: z.number().int().optional(),
     label: z.string().min(1, "Option label is required").max(500),
 })
 
 const fieldInputSchema = z.object({
-    // Present = existing row to update, absent = new field to insert.
-    // Without this the server can't tell the two apart, so every save would
-    // archive and re-insert, giving each question a new id and breaking
-    // per-field analytics.
     id: z.number().int().optional(),
-    // Client-side key for unsaved fields, echoed back beside the real id so
-    // the client can reconcile without replacing its local state.
     tempId: z.string().optional(),
     type: fieldTypeSchema,
     label: z.string().min(1, "Label is required").max(500),
@@ -49,13 +42,36 @@ const updateFormSchema = z.object({
     fields: z.array(fieldInputSchema),
 })
 
+
+const answerInputSchema = z
+    .object({
+        fieldId: z.number().int().positive(),
+        valueText: z.string().max(10_000).optional(),
+        valueNumber: z.number().finite().optional(),
+        valueDate: z.union([z.iso.date(), z.iso.datetime()]).optional(),
+        optionId: z.number().int().positive().optional(),
+    })
+    .refine(
+        (answer) =>
+            [answer.valueText, answer.valueNumber, answer.valueDate, answer.optionId].filter(
+                (value) => value !== undefined
+            ).length === 1,
+        { message: "Each answer needs exactly one of valueText, valueNumber, valueDate or optionId" }
+    )
+
+const submitFormSchema = z.object({
+    publicId: z.string().min(1).max(12),
+    answers: z.array(answerInputSchema).max(500),
+})
+
 type CreateFormBody = z.infer<typeof createFormSchema>
-// What the service receives: the validated body plus the authenticated owner.
 type CreateFormInput = CreateFormBody & { ownerId: number }
 type FieldType = z.infer<typeof fieldTypeSchema>
 type FieldOptionInput = z.infer<typeof fieldOptionInputSchema>
 type FieldInput = z.infer<typeof fieldInputSchema>
 type UpdateFormInput = z.infer<typeof updateFormSchema>
+type AnswerInput = z.infer<typeof answerInputSchema>
+type SubmitFormInput = z.infer<typeof submitFormSchema>
 
 export {
     createFormSchema,
@@ -63,9 +79,13 @@ export {
     fieldOptionInputSchema,
     fieldInputSchema,
     updateFormSchema,
+    answerInputSchema,
+    submitFormSchema,
     type CreateFormInput,
     type FieldType,
     type FieldOptionInput,
     type FieldInput,
     type UpdateFormInput,
+    type AnswerInput,
+    type SubmitFormInput,
 }

@@ -28,6 +28,18 @@ const FormController = {
             next(err instanceof ApiError ? err : ApiError.internal())
         }
     },
+    submitForm: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // req.body is already validated against submitFormSchema.
+            const result = await FormService.submitForm(req.body, {
+                ipAddress: req.ip,
+                userAgent: req.get('user-agent'),
+            })
+            ApiResponse.created(res, result, 'Response submitted')
+        } catch (err) {
+            next(err instanceof ApiError ? err : ApiError.internal())
+        }
+    },
     getForm: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const publicId = String(req.params.publicId)
