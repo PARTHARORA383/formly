@@ -4,6 +4,7 @@ import {
   createFormSchema,
   updateFormSchema,
   type CreateFormInput,
+  type SubmitFormInput,
   type UpdateFormInput,
 } from "@/lib/zod/form"
 import type { Form, FormWithFields, PublicForm, SavedForm } from "@/types/form"
@@ -47,6 +48,15 @@ function usePublicForm(publicId: string) {
   })
 }
 
+function useSubmitForm() {
+  return useMutation({
+    mutationFn: async (input: SubmitFormInput) => {
+      const res = await FormApi.submit(input)
+      return res.data.data as { responseId: number }
+    },
+  })
+}
+
 function useCreateForm() {
   const queryClient = useQueryClient()
 
@@ -81,4 +91,4 @@ function useUpdateForm(publicId: string) {
   })
 }
 
-export { formKeys, useForms, useForm, usePublicForm, useCreateForm, useUpdateForm }
+export { formKeys, useForms, useForm, usePublicForm, useCreateForm, useUpdateForm, useSubmitForm }

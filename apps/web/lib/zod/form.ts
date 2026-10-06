@@ -48,8 +48,21 @@ const updateFormSchema = z.object({
   ),
 })
 
+// Mirrors the server's submitFormSchema: one entry per answer, exactly one value
+// each, and a multi-select sends one entry per ticked option.
+type SubmitFormInput = {
+  publicId: string
+  answers: {
+    fieldId: number
+    valueText?: string
+    valueNumber?: number
+    valueDate?: string
+    optionId?: number
+  }[]
+}
+
 type CreateFormInput = z.infer<typeof createFormSchema>
 type UpdateFormInput = z.infer<typeof updateFormSchema>
 
 export { createFormSchema, updateFormSchema }
-export type { CreateFormInput, UpdateFormInput }
+export type { CreateFormInput, SubmitFormInput, UpdateFormInput }

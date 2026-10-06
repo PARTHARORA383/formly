@@ -1,5 +1,5 @@
 import api from "@/lib/axios"
-import type { CreateFormInput, UpdateFormInput } from "@/lib/zod/form"
+import type { CreateFormInput, SubmitFormInput, UpdateFormInput } from "@/lib/zod/form"
 
 class FormApi {
   static create(input: CreateFormInput) {
@@ -17,6 +17,11 @@ class FormApi {
   // Public: no login, so it must not depend on a session.
   static getPublic(publicId: string) {
     return api.get(`/public/forms/${publicId}`)
+  }
+
+  // Public: a respondent is not logged in.
+  static submit(input: SubmitFormInput) {
+    return api.post("/form/submit", input)
   }
 
   static list() {

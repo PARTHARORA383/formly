@@ -3,15 +3,17 @@
 import * as React from "react"
 import { toast } from "sonner"
 import { Button } from "@workspace/ui/components/button"
-import { HelpCircleIcon, LayoutBottomIcon } from "@workspace/ui/icons"
+import { CheckCircleIcon, HelpCircleIcon, LayoutBottomIcon } from "@workspace/ui/icons"
 import { cn } from "@workspace/ui/lib/utils"
 import { Spinner } from "@/components/kibo-ui/spinner"
 import { EmptyState } from "@/components/common/empty-state"
 import { FieldRenderer } from "@/components/app/form/field"
-import { usePublicForm } from "@/lib/query/form"
+import { usePublicForm, useSubmitForm } from "@/lib/query/form"
+import type { SubmitFormInput } from "@/lib/zod/form"
 import { FORM_FONTS, resolveFormFont } from "@/lib/form-fonts"
 import type { AnswerValue } from "@/types/answer"
 import type { FormField } from "@/types/field"
+import type { PublicForm as PublicFormType } from "@/types/form"
 
 // The respondent's view is read at arm's length, so everything is larger than
 // in the builder. The shared field components are sized from here rather than
@@ -36,13 +38,41 @@ function isEmpty(value: AnswerValue) {
   return value === undefined || value.trim() === ""
 }
 
+// Turns the page's answers into the request. Choice questions send the option's
+// id (the value the inputs hold is that id as a string), a multi-select sends
+// one entry per ticked option, and blank answers are left out.
+function toAnswers(fields: PublicFormType["fields"], answers: Record<number, AnswerValue>) {
+  const out: SubmitFormInput["answers"] = []
+
+  for (const field of fields) {
+    const value = answers[field.id]
+    if (isEmpty(value)) continue
+
+    if (field.type === "dropdown" || field.type === "single_select" || field.type === "multi_select") {
+      for (const id of Array.isArray(value) ? value : [value as string]) {
+        out.push({ fieldId: field.id, optionId: Number(id) })
+      }
+    } else if (field.type === "number") {
+      out.push({ fieldId: field.id, valueNumber: Number(value) })
+    } else if (field.type === "date") {
+      out.push({ fieldId: field.id, valueDate: String(value) })
+    } else {
+      out.push({ fieldId: field.id, valueText: String(value) })
+    }
+  }
+
+  return out
+}
+
 // What a respondent sees. It reads the form from the public endpoint and keeps
 // the answers in local state, keyed by field id. It deliberately does not use
 // the builder's Zustand store: that one is for editing, this is for filling in.
 export function PublicForm({ publicId }: { publicId: string }) {
-  const { data: form, isPending, isError } = usePublicForm(publicId)
+  const { data: form, isPending: isLoading, isError } = usePublicForm(publicId)
   const [answers, setAnswers] = React.useState<Record<number, AnswerValue>>({})
   const [errors, setErrors] = React.useState<Record<number, string>>({})
+  const [submitted, setSubmitted] = React.useState(false)
+  const { mutate, isPending } = useSubmitForm()
 
   if (isPending) {
     return (
@@ -64,6 +94,20 @@ export function PublicForm({ publicId }: { publicId: string }) {
     )
   }
 
+  if (submitted && form) {
+    return (
+      <div
+        className="flex min-h-svh items-center justify-center px-6"
+        style={{ fontFamily: FORM_FONTS[resolveFormFont(form.settings?.fontFamily)].family }}
+      >
+        <div className="flex w-full max-w-md flex-col items-center gap-3 rounded-2xl border border-border/30 bg-muted/60 px-8 py-10 text-center dark:bg-muted">
+          <CheckCircleIcon className="size-12" />
+          <p className="text-lg font-medium">Form submitted successfully</p>
+        </div>
+      </div>
+    )
+  }
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (!form || form.preview) return
@@ -78,8 +122,13 @@ export function PublicForm({ publicId }: { publicId: string }) {
     setErrors(missing)
     if (Object.keys(missing).length > 0) return
 
-    // TODO: POST the answers to the responses endpoint.
-    toast.info("Sending answers is not connected yet.")
+    mutate(
+      { publicId, answers: toAnswers(form.fields, answers) },
+      {
+        onSuccess: () => setSubmitted(true),
+        onError: () => toast.error("Could not submit the form. Please check your answers and try again."),
+      }
+    )
   }
 
   return (
@@ -133,10 +182,10 @@ export function PublicForm({ publicId }: { publicId: string }) {
         <Button
           type="submit"
           variant="brand"
-          disabled={form.preview}
+          disabled={form.preview || isPending}
           title={form.preview ? "Submitting is switched off in preview" : undefined}
         >
-          Submit form
+          {isPending ? <Spinner variant="throbber" className="size-4" /> : "Submit form"}
         </Button>
       </div>
 
