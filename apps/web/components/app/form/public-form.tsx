@@ -19,18 +19,16 @@ import type { PublicForm as PublicFormType } from "@/types/form"
 // in the builder. The shared field components are sized from here rather than
 // given a "large" mode, so the canvas preview keeps its compact look.
 const READABLE = [
-  // the question
-  "[&_[data-slot=field-label]]:text-lg [&_[data-slot=field-label]]:font-medium",
+  // the question: base size, medium weight
+  "[&_[data-slot=field-label]]:text-base [&_[data-slot=field-label]]:font-medium",
   // its helper text
   "[&_[data-slot=field-description]]:text-sm",
-  // option labels, and bigger radios and checkboxes with more air between them
-  "[&_label:not([data-slot=field-label])]:text-base",
-  "[&_[data-slot=radio-group-item]]:size-[18px] [&_[data-slot=checkbox]]:size-[18px]",
-  "[&_[data-slot=radio-group]]:gap-3 [&_[data-slot=field-content]>div.flex-col]:gap-3",
-  // text, number and date inputs, the dropdown, and long text
-  "[&_input]:h-11 [&_input]:text-sm!",
-  "[&_[data-slot=select-trigger]]:h-11 [&_[data-slot=select-trigger]]:text-sm",
-  "[&_textarea]:min-h-11 [&_textarea]:text-sm!",
+  // option labels one size under the question, with matching radios and checkboxes
+  "[&_label:not([data-slot=field-label])]:text-sm",
+  "[&_[data-slot=radio-group-item]]:size-4 [&_[data-slot=checkbox]]:size-4",
+  "[&_[data-slot=radio-group]]:gap-2.5 [&_[data-slot=field-content]>div.flex-col]:gap-2.5",
+  // inputs, the dropdown and long text are 38px tall on this page
+  "[&_input]:h-[38px] [&_[data-slot=select-trigger]]:h-[38px] [&_textarea]:min-h-[38px]",
 ].join(" ")
 
 function isEmpty(value: AnswerValue) {
@@ -144,7 +142,7 @@ export function PublicForm({ publicId }: { publicId: string }) {
           {form.title || "Untitled form"}
         </h1>
         {form.description && (
-          <p className="text-sm text-muted-foreground whitespace-pre-line [overflow-wrap:anywhere]">
+          <p className="text-[15px] text-muted-foreground whitespace-pre-line [overflow-wrap:anywhere]">
             {form.description}
           </p>
         )}
@@ -176,7 +174,7 @@ export function PublicForm({ publicId }: { publicId: string }) {
         })}
       </div>
 
-      <div>
+      <div className="flex justify-end">
         {/* The owner's preview of an unpublished form cannot be submitted, so
             it never ends up in their own responses. */}
         <Button
