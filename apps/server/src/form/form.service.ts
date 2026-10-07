@@ -121,7 +121,8 @@ const FormService = {
         const fields = await loadLiveFields(form.id)
         const rows = buildAnswerRows(fields, input.answers)
 
-        if (rows.length === 0) {
+        // Every question now has at least an empty row, so count real answers.
+        if (!rows.some(isFilled)) {
             throw ApiError.badRequest('Answer at least one question')
         }
 
@@ -319,10 +320,19 @@ function buildAnswerRows(fields: LiveField[], answers: AnswerInput[]): AnswerRow
             throw ApiError.badRequest(`"${field.label}" is required`)
         }
 
-        rows.push(...mine)
+        // An unanswered question is stored as a row with every value empty, so a
+        // response always has one row per question and "left blank" is
+        // distinguishable from "not part of the form when it was submitted".
+        rows.push(...(mine.length > 0 ? mine : [{ fieldId: field.id }]))
     }
 
     return rows
+}
+
+// A row that holds an actual answer, as opposed to the empty row kept for an
+// unanswered question.
+function isFilled(row: AnswerRow) {
+    return row.valueText != null || row.valueNumber != null || row.valueDate != null || row.optionId != null
 }
 
 function rowsForField(field: LiveField, given: AnswerInput[]): AnswerRow[] {
@@ -351,7 +361,8 @@ function rowsForField(field: LiveField, given: AnswerInput[]): AnswerRow[] {
     if (TEXT_TYPES.has(field.type)) {
         if (answer.valueText === undefined) throw wrong('needs a text answer')
 
-        // Blank means unanswered, which only matters if the question is required.
+        // Blank means unanswered: no value is stored here, and the caller adds the
+        // empty row. It only matters for required questions.
         const text = answer.valueText.trim()
         if (text === '') return []
         if (field.type === 'email' && !z.email().safeParse(text).success) throw wrong('needs a valid email address')

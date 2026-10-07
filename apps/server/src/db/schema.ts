@@ -128,7 +128,8 @@ export const answersTable = pgTable(
         fieldId: integer()
             .notNull()
             .references(() => formFieldsTable.id, { onDelete: "cascade" }),
-        // Exactly one of these is populated, chosen by the field's type.
+        // At most one of these is populated, chosen by the field's type. None
+        // means the question was left unanswered.
         valueText: text(),
         valueNumber: numeric(),
         valueDate: timestamp(),
