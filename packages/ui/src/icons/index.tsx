@@ -256,6 +256,13 @@ const SidebarIcon = createIcon("SidebarIcon", ({ fill, light }) => (
   </>
 ))
 
+const LogoutIcon = createIcon("LogoutIcon", ({ fill, light }) => (
+  <>
+    <rect x="2.25" y="2.75" width="8.5" height="12.5" rx="2.5" fill={light} opacity={LIGHT} />
+    <path d="M7.75 9h8M13.25 6.25 16 9l-2.75 2.75" stroke={fill} {...line} />
+  </>
+))
+
 // Also the app's logo mark.
 const LayoutBottomIcon = createIcon("LayoutBottomIcon", ({ fill, light }) => (
   <>
@@ -291,6 +298,7 @@ export {
   SunIcon,
   MoonIcon,
   SidebarIcon,
+  LogoutIcon,
   LayoutBottomIcon,
 }
 export type { IconProps, IconComponent }
