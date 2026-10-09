@@ -13,6 +13,10 @@ class AuthApi {
     return api.post("/auth/refresh")
   }
 
+  static logout() {
+    return api.post("/auth/logout")
+  }
+
   static me() {
     return api.get("/auth/me")
   }

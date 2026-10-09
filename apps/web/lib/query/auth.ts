@@ -42,4 +42,13 @@ function useVerify() {
   })
 }
 
-export { authKeys, useMe, useMagicLink, useVerify }
+// The server ends the session and clears the cookies. Navigation is left to
+// the caller, which must do a full page load (not router.push) so the cached
+// user — and every other query — goes with the old page.
+function useLogout() {
+  return useMutation({
+    mutationFn: () => AuthApi.logout(),
+  })
+}
+
+export { authKeys, useMe, useMagicLink, useVerify, useLogout }
