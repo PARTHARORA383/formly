@@ -155,6 +155,28 @@ async function refresh(refreshToken: string) {
 }
 
 
+// Best effort: an invalid or already-rotated token just means there is no
+// session to end. Matching on the hash means a stale cookie from another
+// device can't wipe out the session that replaced it.
+async function logout(refreshToken: string) {
+
+    let payload: JwtPayload
+    try {
+        payload = verifyRefreshToken(refreshToken)
+    } catch {
+        return
+    }
+
+    await db
+        .update(usersTable)
+        .set({ refreshTokenHash: null })
+        .where(and(
+            eq(usersTable.id, Number(payload.userId)),
+            eq(usersTable.refreshTokenHash, createHash(refreshToken)),
+        ))
+}
+
+
 async function oauthLogin(profile: OAuthProfile) {
 
     // Only trust a provider-verified email — otherwise someone could register
@@ -214,6 +236,7 @@ const AuthService = {
     verify,
     refresh,
     me,
+    logout,
     oauthLogin,
 }
 

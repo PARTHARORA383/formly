@@ -5,7 +5,7 @@ import ApiResponse from '../common/utils/response.js'
 import ApiError from '../common/utils/error.js'
 import { ZodError } from 'zod'
 import { env } from '../env.js'
-import { setAuthCookies, setAccessTokenCookie } from '../common/utils/cookies.js'
+import { setAuthCookies, setAccessTokenCookie, clearAuthCookies } from '../common/utils/cookies.js'
 import { getProvider } from './providers/index.js'
 
 const OAUTH_STATE_COOKIE = 'oauthState'
@@ -59,6 +59,23 @@ const AuthController = {
 
             ApiResponse.success(res, null, 'Refreshed')
         } catch (err) {
+            next(err instanceof ApiError ? err : ApiError.internal())
+        }
+    },
+    // No `authenticate` in front of this: the access token may already have
+    // expired, and logging out should still work. The cookies are cleared
+    // even if the DB update fails, so the browser is logged out regardless.
+    logout: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const refreshToken = req.cookies.refreshToken
+            if (refreshToken) {
+                await AuthService.logout(refreshToken)
+            }
+
+            clearAuthCookies(res)
+            ApiResponse.success(res, null, 'Logged out')
+        } catch (err) {
+            clearAuthCookies(res)
             next(err instanceof ApiError ? err : ApiError.internal())
         }
     },

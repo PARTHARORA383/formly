@@ -24,4 +24,17 @@ function setAccessTokenCookie(res: Response, accessToken: string) {
     })
 }
 
-export { setAuthCookies, setAccessTokenCookie }
+// A browser only drops a cookie when the clearing options match the ones it
+// was set with, so these mirror setAuthCookies (minus maxAge).
+function clearAuthCookies(res: Response) {
+    const base = {
+        httpOnly: true,
+        secure: env.node === 'production',
+        sameSite: env.cookieSameSite,
+    } as const
+
+    res.clearCookie('accessToken', base)
+    res.clearCookie('refreshToken', base)
+}
+
+export { setAuthCookies, setAccessTokenCookie, clearAuthCookies }

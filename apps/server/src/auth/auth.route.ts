@@ -9,6 +9,7 @@ const router = Router()
 router.post('/magic-link', validateBody(magicLinkSchema), AuthController.magicLink)
 router.post('/verify', validateBody(verifySchema), AuthController.verify)
 router.post('/refresh', AuthController.refresh)
+router.post('/logout', AuthController.logout)
 router.get('/me', authenticate, AuthController.me)
 
 // Social login — :provider resolves against the registry in ./providers
