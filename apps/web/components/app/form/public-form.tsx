@@ -62,6 +62,9 @@ function toAnswers(fields: PublicFormType["fields"], answers: Record<number, Ans
   return out
 }
 
+// How long the form takes to fade out after a successful submit, in ms.
+const FADE_MS = 300
+
 // What a respondent sees. It reads the form from the public endpoint and keeps
 // the answers in local state, keyed by field id. It deliberately does not use
 // the builder's Zustand store: that one is for editing, this is for filling in.
@@ -69,10 +72,20 @@ export function PublicForm({ publicId }: { publicId: string }) {
   const { data: form, isPending: isLoading, isError } = usePublicForm(publicId)
   const [answers, setAnswers] = React.useState<Record<number, AnswerValue>>({})
   const [errors, setErrors] = React.useState<Record<number, string>>({})
+  // `leaving` is the short fade-out between a successful submit and the success
+  // card, so the swap is a transition rather than a cut.
+  const [leaving, setLeaving] = React.useState(false)
   const [submitted, setSubmitted] = React.useState(false)
   const { mutate, isPending } = useSubmitForm()
+  const swapTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  if (isPending) {
+  React.useEffect(() => {
+    return () => {
+      if (swapTimer.current) clearTimeout(swapTimer.current)
+    }
+  }, [])
+
+  if (isLoading) {
     return (
       <div className="flex min-h-svh items-center justify-center">
         <Spinner variant="throbber" className="size-5" />
@@ -98,7 +111,7 @@ export function PublicForm({ publicId }: { publicId: string }) {
         className="flex min-h-svh items-center justify-center px-6"
         style={{ fontFamily: FORM_FONTS[resolveFormFont(form.settings?.fontFamily)].family }}
       >
-        <div className="flex w-full max-w-md flex-col items-center gap-3 rounded-2xl border border-border/30 bg-muted/60 px-8 py-10 text-center dark:bg-muted">
+        <div className="flex w-full max-w-md animate-in flex-col items-center gap-3 rounded-2xl border border-border/30 bg-muted/60 px-8 py-10 text-center duration-300 fade-in zoom-in-95 dark:bg-muted">
           <CheckCircleIcon className="size-12" />
           <p className="text-lg font-medium">Form submitted successfully</p>
         </div>
@@ -123,7 +136,10 @@ export function PublicForm({ publicId }: { publicId: string }) {
     mutate(
       { publicId, answers: toAnswers(form.fields, answers) },
       {
-        onSuccess: () => setSubmitted(true),
+        onSuccess: () => {
+          setLeaving(true)
+          swapTimer.current = setTimeout(() => setSubmitted(true), FADE_MS)
+        },
         onError: () => toast.error("Could not submit the form. Please check your answers and try again."),
       }
     )
@@ -135,7 +151,11 @@ export function PublicForm({ publicId }: { publicId: string }) {
       onSubmit={handleSubmit}
       // The font the owner picked in the form settings. Controls inherit it.
       style={{ fontFamily: FORM_FONTS[resolveFormFont(form.settings?.fontFamily)].family }}
-      className="mx-auto flex min-h-svh w-full max-w-2xl flex-col gap-8 px-6 py-10"
+      className={cn(
+        "mx-auto flex min-h-svh w-full max-w-2xl flex-col gap-8 px-6 py-10 transition-opacity duration-300",
+        // Fades away once the response is saved, just before the success card.
+        leaving && "opacity-0"
+      )}
     >
       <header className="flex flex-col gap-1">
         <h1 className="text-lg font-medium tracking-tight [overflow-wrap:anywhere]">
@@ -148,7 +168,15 @@ export function PublicForm({ publicId }: { publicId: string }) {
         )}
       </header>
 
-      <div className={cn("flex flex-col gap-9", READABLE)}>
+      {/* Dimmed and locked while the answers are being sent. */}
+      <div
+        inert={isPending || leaving}
+        className={cn(
+          "flex flex-col gap-9 transition-opacity duration-300",
+          (isPending || leaving) && "opacity-50",
+          READABLE
+        )}
+      >
         {form.fields.map((field) => {
           // The public payload has no builder-only data; the renderer wants a
           // full FormField, so the missing pieces are filled with empty values.
@@ -180,10 +208,10 @@ export function PublicForm({ publicId }: { publicId: string }) {
         <Button
           type="submit"
           variant="brand"
-          disabled={form.preview || isPending}
+          disabled={form.preview || isPending || leaving}
           title={form.preview ? "Submitting is switched off in preview" : undefined}
         >
-          {isPending ? <Spinner variant="throbber" className="size-4" /> : "Submit form"}
+          {isPending || leaving ? <Spinner variant="throbber" className="size-4" /> : "Submit form"}
         </Button>
       </div>
 
